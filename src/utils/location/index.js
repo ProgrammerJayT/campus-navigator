@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Platform, Text, View, StyleSheet } from "react-native";
+import { Platform } from "react-native";
 import Device from "expo-device";
 import * as Location from "expo-location";
 
 const GetUserLocation = ({ setLoading, setLocation }) => {
-  const [tempLocation, setTempLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
+    let subscription;
+
     (async () => {
       if (Platform.OS === "android" && !Device.isDevice) {
         setErrorMsg(
@@ -25,34 +26,29 @@ const GetUserLocation = ({ setLoading, setLocation }) => {
 
       setLoading(true);
 
-      let location = await Location.getCurrentPositionAsync({});
-
-      setLoading(false);
-
-      setLocation(location)
-      setTempLocation(location);
+      // Subscribe to location updates
+      subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          // timeInterval: 10000,
+          distanceInterval: 5,
+        },
+        (location) => {
+          console.log("Location", location);
+          setLoading(false);
+          setLocation(location);
+        }
+      );
     })();
+
+    return () => {
+      if (subscription) {
+        subscription.remove();
+      }
+    };
   }, []);
 
-  let text = "Waiting..";
-  if (errorMsg) {
-    text = errorMsg;
-  } else if (tempLocation) {
-    text = JSON.stringify(tempLocation);
-  }
+  return null;
 };
 
 export default GetUserLocation;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-  paragraph: {
-    fontSize: 18,
-    textAlign: "center",
-  },
-});
