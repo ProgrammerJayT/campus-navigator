@@ -5,18 +5,25 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet } from "react-native";
 import { axiosHeaders } from "./src/services/config/axios";
 import { RootSiblingParent } from "react-native-root-siblings";
+import { ComponentsStateProvider } from "./src/state-management/context/components";
+import ComponentsContainer from "./src/components/container";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const App = () => {
   useEffect(() => {
     axiosHeaders();
-    console.log("Entry file", process.env.API_URL);
   }, []);
 
   return (
     <SafeAreaView style={styles.root}>
       <NavigationContainer>
         <RootSiblingParent>
-          <RouteStack />
+          <ComponentsStateProvider>
+            <GestureHandlerRootView>
+              <RouteStack />
+            </GestureHandlerRootView>
+            <ComponentsContainer />
+          </ComponentsStateProvider>
         </RootSiblingParent>
       </NavigationContainer>
     </SafeAreaView>
