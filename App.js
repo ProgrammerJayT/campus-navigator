@@ -8,6 +8,7 @@ import { RootSiblingParent } from "react-native-root-siblings";
 import { ComponentsStateProvider } from "./src/state-management/context/components";
 import ComponentsContainer from "./src/components/container";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { LocationStateProvider } from "./src/state-management/context/location";
 
 const App = () => {
   useEffect(() => {
@@ -20,7 +21,9 @@ const App = () => {
         <RootSiblingParent>
           <ComponentsStateProvider>
             <GestureHandlerRootView>
-              <RouteStack />
+              <LocationStateProvider>
+                <RouteStack />
+              </LocationStateProvider>
             </GestureHandlerRootView>
             <ComponentsContainer />
           </ComponentsStateProvider>
