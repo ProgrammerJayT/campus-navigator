@@ -37,7 +37,9 @@ export const login = async (credentials) => {
 export const verifyToken = async () => {
   console.log("API URL ", `${process.env.API_URL}/api/v1/verify-token`);
 
-  await AsyncStorage.getItem("token");
+  const token = await AsyncStorage.getItem("token");
+
+  console.log("Token", token);
 
   try {
     const response = await axios.get(
