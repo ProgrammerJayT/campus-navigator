@@ -1,10 +1,10 @@
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import Icons from "@expo/vector-icons/FontAwesome5";
-import { AppColors } from "../../constants/colors";
-import ComponentsStateContext from "../../state-management/context/components";
+import { AppColors } from "../../../constants/colors";
+import ComponentsStateContext from "../../../state-management/context/components";
 import SlideButton from "rn-slide-button";
-import { deleteUser } from "../../services/users";
+import { deleteUser } from "../../../services/users";
 
 const UserScreen = ({ navigation, route }) => {
   const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(

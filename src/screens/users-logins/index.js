@@ -7,35 +7,40 @@ import SpinnerComponent from "../../components/spinner";
 import UsersList from "../../components/flatlist/users";
 import Icons from "@expo/vector-icons/FontAwesome5";
 import ComponentsStateContext from "../../state-management/context/components";
+import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
+import { fetchUsersLogins } from "../../services/users-logins";
+import { failedRequest } from "../../services/exception";
+import UsersLoginsList from "../../components/flatlist/users-logins";
 
-const UsersScreen = ({ navigation }) => {
+const UsersLoginsScreen = ({ navigation }) => {
   const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(
     ComponentsStateContext
   );
 
-  const [users, setUsers] = useState([]);
+  const [usersLogins, setUsersLogins] = useState([]);
 
-  useEffect(() => {
-    setLottieLoadingComponent((lottieLoadingComponent) => ({
-      ...lottieLoadingComponent,
-      visible: true,
-    }));
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchData = async () => {
+        setLottieLoadingComponent((lottieLoadingComponent) => ({
+          ...lottieLoadingComponent,
+          visible: true,
+        }));
+        const response = await fetchUsersLogins();
 
-    const fetchUsers = async () => {
-      const response = await getUsers();
+        console.log("Response", failedRequest(response));
 
-      if (response.users.length) setUsers(response.users);
+        setUsersLogins(response.usersLogins.length ? response.usersLogins : []);
 
-      setLottieLoadingComponent((lottieLoadingComponent) => ({
-        ...lottieLoadingComponent,
-        visible: false,
-      }));
+        setLottieLoadingComponent((lottieLoadingComponent) => ({
+          ...lottieLoadingComponent,
+          visible: false,
+        }));
+      };
 
-      console.log("Users response", response.users);
-    };
-
-    fetchUsers();
-  }, []);
+      fetchData();
+    }, [])
+  );
 
   const handleUserClick = (user) => {
     navigation.navigate("User", { user: user });
@@ -43,42 +48,30 @@ const UsersScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {users.length ? (
+      {usersLogins.length ? (
         <View style={{ flex: 1 }}>
           <View style={styles.headerContainer}>
-            <Text style={[styles.title, { color: "#fff" }]}>Users</Text>
+            <Text style={[styles.title, { color: "#fff" }]}>Login History</Text>
             <View style={{ marginHorizontal: 5 }} />
             <Icons name="users" size={20} color="white" />
           </View>
 
-          <UsersList
-            users={users}
-            handleUserClick={(user) => handleUserClick(user)}
-          />
+          <UsersLoginsList usersLogins={usersLogins} />
         </View>
       ) : (
         <View style={styles.noUsersContainer}>
           <Text style={styles.title}>
             {lottieLoadingComponent.visible
-              ? "Checking for users"
-              : "No users found"}
+              ? "Fetching users logins"
+              : "No users logins found"}
           </Text>
-
-          {!lottieLoadingComponent.visible && (
-            <View style={styles.buttonContainer}>
-              <TouchableOpacityComponent
-                text={"Create new"}
-                type={AppColors.secondary}
-              />
-            </View>
-          )}
         </View>
       )}
     </SafeAreaView>
   );
 };
 
-export default UsersScreen;
+export default UsersLoginsScreen;
 
 const styles = StyleSheet.create({
   container: {
