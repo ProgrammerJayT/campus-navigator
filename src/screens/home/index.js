@@ -1,10 +1,5 @@
-import React, { useContext, useState } from "react";
-import {
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { Text, View, Image, TouchableOpacity } from "react-native";
 import GetUserLocation from "../../utils/location";
 import HomeLogo from "../../../assets/images/home.png";
 import TouchableOpacityComponent from "../../components/touchable-opacity";
@@ -13,34 +8,25 @@ import { styles } from "./styles";
 import MapComponent from "../../components/map";
 import Icons from "@expo/vector-icons/FontAwesome5";
 import ComponentsStateContext from "../../state-management/context/components";
+import LocationStateContext from "../../state-management/context/location";
 
 const HomeScreen = ({ navigation }) => {
+  const { location, loading } = useContext(LocationStateContext);
+
   const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(
     ComponentsStateContext
   );
 
-  const [location, setLocation] = useState({
-    latitude: 0,
-    longitude: 0,
-  });
-
-  const handleLocationLoading = (isLoading) => {
-    setLottieLoadingComponent((lottieLoadingComponent) => ({
-      ...lottieLoadingComponent,
-      visible: isLoading,
-    }));
-  };
-
-  const handleLocation = (currentLocation) => {
-    setLocation({
-      latitude: currentLocation.coords.latitude,
-      longitude: currentLocation.coords.longitude,
-    });
-  };
-
   const handleNavigation = (route) => {
     navigation.navigate(route);
   };
+
+  useEffect(() => {
+    setLottieLoadingComponent((lottieLoadingComponent) => ({
+      ...lottieLoadingComponent,
+      visible: loading,
+    }));
+  }, [loading]);
 
   return (
     <View style={styles.container}>
@@ -146,13 +132,6 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
-
-      <GetUserLocation
-        setLoading={(loading) => handleLocationLoading(loading)}
-        setLocation={(currentLocation) => {
-          handleLocation(currentLocation);
-        }}
-      />
     </View>
   );
 };
