@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   SafeAreaView,
   Text,
@@ -23,16 +23,27 @@ import { failedRequest } from "../../../services/exception";
 import Toast from "react-native-root-toast";
 import { axiosHeaders } from "../../../services/config/axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import ComponentsStateContext from "../../../state-management/context/components";
 
 const LoginScreen = ({ navigation }) => {
-  const [loading, setLoading] = useState(false);
+  const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(
+    ComponentsStateContext
+  );
 
   const handleFormSubmit = async (values) => {
     console.log("Form submitted:", values);
 
-    setLoading(true);
+    setLottieLoadingComponent((lottieLoadingComponent) => ({
+      ...lottieLoadingComponent,
+      visible: true,
+    }));
+
     const response = await login(values);
-    setLoading(false);
+
+    setLottieLoadingComponent((lottieLoadingComponent) => ({
+      ...lottieLoadingComponent,
+      visible: false,
+    }));
 
     if (!response.token) {
       Toast.show(failedRequest(response).message, {
@@ -62,6 +73,10 @@ const LoginScreen = ({ navigation }) => {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <SafeAreaView style={styles.container}>
+          {lottieLoadingComponent && (
+            <SpinnerComponent visible={lottieLoadingComponent} />
+          )}
+
           <ScrollView
             contentContainerStyle={styles.formContainer}
             keyboardShouldPersistTaps="handled"
