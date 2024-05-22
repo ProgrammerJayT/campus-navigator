@@ -8,6 +8,7 @@ import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEff
 import { fetchInterestsPlaces } from "../../../services/interests-places";
 import InterestsPlacesList from "../../../components/flatlist/interests-places";
 import { styles } from "./styles";
+import { failedRequest } from "../../../services/exception";
 
 const InterestsPlacesScreen = ({ navigation }) => {
   const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(
@@ -18,12 +19,24 @@ const InterestsPlacesScreen = ({ navigation }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchUsers = async () => {
+      const callFetchInterestsPlaces = async () => {
         setLottieLoadingComponent((lottieLoadingComponent) => ({
           ...lottieLoadingComponent,
           visible: true,
         }));
+
         const response = await fetchInterestsPlaces();
+
+        if (response.response) {
+          console.log(
+            "Failed to load interests places",
+            failedRequest(response).message
+          );
+        } else {
+          console.log("Interests places response", response);
+        }
+
+        // console.log("Interests places response", response);
 
         setInterestsPlaces(
           response.interestsPlaces.length ? response.interestsPlaces : []
@@ -35,7 +48,7 @@ const InterestsPlacesScreen = ({ navigation }) => {
         }));
       };
 
-      fetchUsers();
+      callFetchInterestsPlaces();
     }, [])
   );
 
