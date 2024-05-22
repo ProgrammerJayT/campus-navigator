@@ -19,6 +19,8 @@ const WelcomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     const checkToken = async () => {
+      console.log("Checking token");
+
       setLottieLoadingComponent((lottieLoadingComponent) => ({
         ...lottieLoadingComponent,
         visible: true,
@@ -29,25 +31,29 @@ const WelcomeScreen = ({ navigation }) => {
       if (token) {
         const tokenValid = await verifyToken();
 
-        setLottieLoadingComponent((lottieLoadingComponent) => ({
-          ...lottieLoadingComponent,
-          visible: false,
-        }));
+        if (tokenValid.response) {
+          setLottieLoadingComponent((lottieLoadingComponent) => ({
+            ...lottieLoadingComponent,
+            visible: false,
+          }));
 
-        setLottieLoadingComponent((lottieLoadingComponent) => ({
-          ...lottieLoadingComponent,
-          visible: false,
-        }));
-
-        if (tokenValid?.response) {
-          Toast.show("Session ended. Please login", {
+          return Toast.show("Session ended. Please login", {
             duration: Toast.durations.LONG,
             backgroundColor: "red",
             position: 20,
           });
         } else {
-          handleNavigation("Home");
+          setLottieLoadingComponent((lottieLoadingComponent) => ({
+            ...lottieLoadingComponent,
+            visible: false,
+          }));
+          return handleNavigation("Home");
         }
+      } else {
+        setLottieLoadingComponent((lottieLoadingComponent) => ({
+          ...lottieLoadingComponent,
+          visible: false,
+        }));
       }
     };
 
