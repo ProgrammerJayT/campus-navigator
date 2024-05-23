@@ -93,47 +93,57 @@ const HomeScreen = ({ navigation }) => {
           />
         </View>
 
-        <View style={styles.buttonsContainer}>
-          {user.type === "admin" && (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => handleNavigation("Users")}
-            >
-              <Text style={styles.buttonText}>Users</Text>
-              <View style={{ marginHorizontal: 5 }} />
-              <Icons name="users" size={20} color="white" />
-            </TouchableOpacity>
-          )}
+        {user.type === "admin" ? (
+          <>
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => handleNavigation("Users")}
+              >
+                <Text style={styles.buttonText}>Users</Text>
+                <View style={{ marginHorizontal: 5 }} />
+                <Icons name="users" size={20} color="white" />
+              </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => handleNavigation("User Logins")}
-          >
-            <Text style={styles.buttonText}>User Logins</Text>
-            <View style={{ marginHorizontal: 5 }} />
-            <Icons name="clipboard-list" size={20} color="white" />
-          </TouchableOpacity>
-        </View>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => handleNavigation("User Logins")}
+              >
+                <Text style={styles.buttonText}>User Logins</Text>
+                <View style={{ marginHorizontal: 5 }} />
+                <Icons name="clipboard-list" size={20} color="white" />
+              </TouchableOpacity>
+            </View>
 
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => handleNavigation("Interests Places")}
-          >
-            <Text style={styles.buttonText}>Interests Places</Text>
-            <View style={{ marginHorizontal: 5 }} />
-            <Icons name="volleyball-ball" size={20} color="white" />
-          </TouchableOpacity>
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => handleNavigation("Interests Places")}
+              >
+                <Text style={styles.buttonText}>Interests Places</Text>
+                <View style={{ marginHorizontal: 5 }} />
+                <Icons name="volleyball-ball" size={20} color="white" />
+              </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => handleNavigation("Visits")}
-          >
-            <Text style={styles.buttonText}>Visits</Text>
-            <View style={{ marginHorizontal: 5 }} />
-            <Icons name="hospital-user" size={20} color="white" />
-          </TouchableOpacity>
-        </View>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => handleNavigation("Visits")}
+              >
+                <Text style={styles.buttonText}>Visits</Text>
+                <View style={{ marginHorizontal: 5 }} />
+                <Icons name="hospital-user" size={20} color="white" />
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          <>
+            <View style={{ flex: 1 }} />
+            <Text style={{ fontSize: 30, color: "red", textAlign: "center" }}>
+              Administrator Use Only
+            </Text>
+            <View style={{ flex: 1 }} />
+          </>
+        )}
       </View>
     </View>
   );
