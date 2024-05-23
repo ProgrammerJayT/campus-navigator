@@ -13,13 +13,18 @@ import { AppColors } from "../../../constants/colors";
 
 const Item = ({ user, handleClick }) => (
   <TouchableOpacity style={styles.item} onPress={() => handleClick(user)}>
-    <View style={{ flexDirection: "row", alignItems: "center" }}>
+    <View
+      style={{ flexDirection: "row", alignItems: "center", marginBottom: 5 }}
+    >
       <Icons name="user-alt" size={20} color={AppColors.secondary} />
       <View style={{ marginHorizontal: 5 }} />
       <Text style={styles.title}>{`${user.name} ${user.surname}`}</Text>
     </View>
 
-    <Text style={styles.email}>{`${user.email}`}</Text>
+    <Text style={styles.email}>Email: {`${user.email}`}</Text>
+    <Text style={styles.email}>
+      Privileges: {`${user.type === "admin" ? user.type : "basic"}`}
+    </Text>
   </TouchableOpacity>
 );
 
