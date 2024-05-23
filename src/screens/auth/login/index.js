@@ -18,14 +18,17 @@ import TouchableOpacityComponent from "../../../components/touchable-opacity";
 import { AppColors } from "../../../constants/colors";
 import { styles } from "./styles";
 import SpinnerComponent from "../../../components/spinner";
-import { login } from "../../../services/auth";
+import { fetchUser, login } from "../../../services/auth";
 import { failedRequest } from "../../../services/exception";
 import Toast from "react-native-root-toast";
 import { axiosHeaders } from "../../../services/config/axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ComponentsStateContext from "../../../state-management/context/components";
+import AuthContext from "../../../state-management/context/auth";
 
 const LoginScreen = ({ navigation }) => {
+  const { user, setUser } = useContext(AuthContext);
+
   const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(
     ComponentsStateContext
   );
@@ -40,21 +43,7 @@ const LoginScreen = ({ navigation }) => {
 
     const response = await login(values);
 
-    setLottieLoadingComponent((lottieLoadingComponent) => ({
-      ...lottieLoadingComponent,
-      visible: false,
-    }));
-
-    if (!response.token) {
-      Toast.show(failedRequest(response).message, {
-        duration: Toast.durations.LONG,
-        backgroundColor: "red",
-      });
-
-      console.log("Login response", failedRequest(response).message);
-    } else {
-      console.log("Token", response.token);
-
+    if (response.token) {
       const saveToken = async () => {
         await AsyncStorage.setItem("token", response.token);
       };
@@ -62,8 +51,26 @@ const LoginScreen = ({ navigation }) => {
       saveToken();
       axiosHeaders();
 
-      navigation.navigate("Home", { old: true });
+      const loggedUserResponse = await fetchUser();
+      setUser((user) => ({ ...user, ...loggedUserResponse?.user }));
+
+      setLottieLoadingComponent((lottieLoadingComponent) => ({
+        ...lottieLoadingComponent,
+        visible: false,
+      }));
+
+      return navigation.navigate("Home", { old: true });
     }
+
+    setLottieLoadingComponent((lottieLoadingComponent) => ({
+      ...lottieLoadingComponent,
+      visible: false,
+    }));
+
+    Toast.show(failedRequest(response).message, {
+      duration: Toast.durations.LONG,
+      backgroundColor: "red",
+    });
   };
 
   return (
