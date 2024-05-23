@@ -9,8 +9,11 @@ import MapComponent from "../../components/map";
 import Icons from "@expo/vector-icons/FontAwesome5";
 import ComponentsStateContext from "../../state-management/context/components";
 import LocationStateContext from "../../state-management/context/location";
+import AuthContext from "../../state-management/context/auth";
 
 const HomeScreen = ({ navigation }) => {
+  const { user } = useContext(AuthContext);
+
   const { location, loading } = useContext(LocationStateContext);
 
   const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(
@@ -62,6 +65,7 @@ const HomeScreen = ({ navigation }) => {
           />
 
           <TouchableOpacity
+            onPress={() => handleNavigation("Profile")}
             style={{
               borderRadius: 20,
               backgroundColor: AppColors.secondary,
@@ -75,7 +79,7 @@ const HomeScreen = ({ navigation }) => {
                 padding: 20,
               }}
             >
-              Hello, Admin
+              Hello, {user.name}
             </Text>
           </TouchableOpacity>
 
@@ -90,29 +94,17 @@ const HomeScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => handleNavigation("Users")}
-          >
-            <Text style={styles.buttonText}>Users</Text>
-            <View style={{ marginHorizontal: 5 }} />
-            <Icons name="users" size={20} color="white" />
-          </TouchableOpacity>
+          {user.type === "admin" && (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handleNavigation("Users")}
+            >
+              <Text style={styles.buttonText}>Users</Text>
+              <View style={{ marginHorizontal: 5 }} />
+              <Icons name="users" size={20} color="white" />
+            </TouchableOpacity>
+          )}
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => handleNavigation("Interests Places")}
-          >
-            <Text style={styles.buttonText}>Interests Places</Text>
-            <View style={{ marginHorizontal: 5 }} />
-            <Icons name="volleyball-ball" size={20} color="white" />
-          </TouchableOpacity>
-        </View>
-
-        <View
-          style={styles.buttonsContainer}
-          onPress={() => handleNavigation("User Logins")}
-        >
           <TouchableOpacity
             style={styles.button}
             onPress={() => handleNavigation("User Logins")}
@@ -120,6 +112,17 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.buttonText}>User Logins</Text>
             <View style={{ marginHorizontal: 5 }} />
             <Icons name="clipboard-list" size={20} color="white" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => handleNavigation("Interests Places")}
+          >
+            <Text style={styles.buttonText}>Interests Places</Text>
+            <View style={{ marginHorizontal: 5 }} />
+            <Icons name="volleyball-ball" size={20} color="white" />
           </TouchableOpacity>
 
           <TouchableOpacity
