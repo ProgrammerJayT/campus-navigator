@@ -5,17 +5,18 @@ import TouchableOpacityComponent from "../../components/touchable-opacity";
 import { AppColors } from "../../constants/colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SpinnerComponent from "../../components/spinner";
-import { verifyToken } from "../../services/auth";
+import { fetchUser, verifyToken } from "../../services/auth";
 import { failedRequest } from "../../services/exception";
 import Toast from "react-native-root-toast";
 import ComponentsStateContext from "../../state-management/context/components";
+import AuthContext from "../../state-management/context/auth";
 
 const WelcomeScreen = ({ navigation }) => {
+  const { user, setUser } = useContext(AuthContext);
+
   const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(
     ComponentsStateContext
   );
-
-  const [auth, setAuth] = useState(false);
 
   useEffect(() => {
     const checkToken = async () => {
@@ -42,19 +43,28 @@ const WelcomeScreen = ({ navigation }) => {
             backgroundColor: "red",
             position: 20,
           });
-        } else {
-          setLottieLoadingComponent((lottieLoadingComponent) => ({
-            ...lottieLoadingComponent,
-            visible: false,
-          }));
-          return handleNavigation("Home");
         }
-      } else {
+
+        const fetchUserResponse = await fetchUser();
+        console.log("User response", fetchUserResponse?.user);
+
+        setUser((user) => ({
+          ...user,
+          ...fetchUserResponse?.user,
+        }));
+
         setLottieLoadingComponent((lottieLoadingComponent) => ({
           ...lottieLoadingComponent,
           visible: false,
         }));
+
+        return handleNavigation("Home");
       }
+
+      return setLottieLoadingComponent((lottieLoadingComponent) => ({
+        ...lottieLoadingComponent,
+        visible: false,
+      }));
     };
 
     checkToken();
