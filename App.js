@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import RouteStack from "./src/router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { axiosHeaders } from "./src/services/config/axios";
 import { RootSiblingParent } from "react-native-root-siblings";
 import { ComponentsStateProvider } from "./src/state-management/context/components";
@@ -17,7 +16,7 @@ const App = () => {
   }, []);
 
   return (
-    <SafeAreaView style={styles.root}>
+    <View style={styles.root}>
       <AuthProvider>
         <NavigationContainer>
           <RootSiblingParent>
@@ -32,7 +31,7 @@ const App = () => {
           </RootSiblingParent>
         </NavigationContainer>
       </AuthProvider>
-    </SafeAreaView>
+    </View>
   );
 };
 
