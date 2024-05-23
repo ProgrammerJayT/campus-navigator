@@ -9,6 +9,7 @@ import { ComponentsStateProvider } from "./src/state-management/context/componen
 import ComponentsContainer from "./src/components/container";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { LocationStateProvider } from "./src/state-management/context/location";
+import { AuthProvider } from "./src/state-management/context/auth";
 
 const App = () => {
   useEffect(() => {
@@ -17,18 +18,20 @@ const App = () => {
 
   return (
     <SafeAreaView style={styles.root}>
-      <NavigationContainer>
-        <RootSiblingParent>
-          <ComponentsStateProvider>
-            <GestureHandlerRootView>
-              <LocationStateProvider>
-                <RouteStack />
-              </LocationStateProvider>
-            </GestureHandlerRootView>
-            <ComponentsContainer />
-          </ComponentsStateProvider>
-        </RootSiblingParent>
-      </NavigationContainer>
+      <AuthProvider>
+        <NavigationContainer>
+          <RootSiblingParent>
+            <ComponentsStateProvider>
+              <GestureHandlerRootView>
+                <LocationStateProvider>
+                  <RouteStack />
+                </LocationStateProvider>
+              </GestureHandlerRootView>
+              <ComponentsContainer />
+            </ComponentsStateProvider>
+          </RootSiblingParent>
+        </NavigationContainer>
+      </AuthProvider>
     </SafeAreaView>
   );
 };
