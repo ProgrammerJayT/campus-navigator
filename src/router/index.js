@@ -12,6 +12,7 @@ import CreateInterestsPlace from "../screens/interests-places/create";
 import UsersLoginsScreen from "../screens/users-logins";
 import InterestsPlacesScreen from "../screens/interests-places/all";
 import InterestsPlaceScreen from "../screens/interests-places/one";
+import ProfileScreen from "../screens/profile";
 
 const Stack = createNativeStackNavigator();
 
@@ -37,6 +38,8 @@ const RouteStack = () => {
         <Stack.Screen name="Users" component={UsersScreen} />
 
         <Stack.Screen name="User" component={UserScreen} />
+
+        <Stack.Screen name="Profile" component={ProfileScreen} />
 
         <Stack.Screen name="User Logins" component={UsersLoginsScreen} />
 
