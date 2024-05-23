@@ -35,11 +35,7 @@ export const login = async (credentials) => {
 };
 
 export const verifyToken = async () => {
-  console.log("API URL ", `${process.env.API_URL}/api/v1/verify-token`);
-
-  const token = await AsyncStorage.getItem("token");
-
-  console.log("Token", token);
+  await AsyncStorage.getItem("token");
 
   try {
     const response = await axios.get(
@@ -47,6 +43,30 @@ export const verifyToken = async () => {
     );
 
     return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const fetchUser = async () => {
+  await AsyncStorage.getItem("token");
+
+  try {
+    const response = await axios.get(`${process.env.API_URL}/api/user`);
+
+    return response.data;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const logout = async () => {
+  await AsyncStorage.getItem("token");
+
+  try {
+    const response = await axios.post(`${process.env.API_URL}/api/logout`);
+
+    return response.data;
   } catch (error) {
     return error;
   }
