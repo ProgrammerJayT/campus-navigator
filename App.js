@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import RouteStack from "./src/router";
-import { StyleSheet, View } from "react-native";
 import { axiosHeaders } from "./src/services/config/axios";
 import { RootSiblingParent } from "react-native-root-siblings";
 import { ComponentsStateProvider } from "./src/state-management/context/components";
@@ -16,29 +15,21 @@ const App = () => {
   }, []);
 
   return (
-    <View style={styles.root}>
+    <NavigationContainer>
       <AuthProvider>
-        <NavigationContainer>
-          <RootSiblingParent>
-            <ComponentsStateProvider>
-              <GestureHandlerRootView>
-                <LocationStateProvider>
-                  <RouteStack />
-                </LocationStateProvider>
-              </GestureHandlerRootView>
-              <ComponentsContainer />
-            </ComponentsStateProvider>
-          </RootSiblingParent>
-        </NavigationContainer>
+        <RootSiblingParent>
+          <ComponentsStateProvider>
+            <GestureHandlerRootView>
+              <LocationStateProvider>
+                <RouteStack />
+              </LocationStateProvider>
+            </GestureHandlerRootView>
+            <ComponentsContainer />
+          </ComponentsStateProvider>
+        </RootSiblingParent>
       </AuthProvider>
-    </View>
+    </NavigationContainer>
   );
 };
 
 export default App;
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-});
