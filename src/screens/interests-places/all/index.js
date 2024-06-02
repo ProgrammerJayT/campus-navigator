@@ -4,16 +4,23 @@ import TouchableOpacityComponent from "../../../components/touchable-opacity";
 import { AppColors } from "../../../constants/colors";
 import Icons from "@expo/vector-icons/FontAwesome5";
 import ComponentsStateContext from "../../../state-management/context/components";
-import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
+import { useFocusEffect } from "@react-navigation/native";
 import { fetchInterestsPlaces } from "../../../services/interests-places";
 import InterestsPlacesList from "../../../components/flatlist/interests-places";
 import { styles } from "./styles";
 import { failedRequest } from "../../../services/exception";
+import AuthContext from "../../../state-management/context/auth";
+import Toast from "react-native-root-toast";
+import NavigationStateContext from "../../../state-management/context/navigation";
 
 const InterestsPlacesScreen = ({ navigation }) => {
+  const { user } = useContext(AuthContext);
+
   const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(
     ComponentsStateContext
   );
+
+  const { setInterestsPlace } = useContext(NavigationStateContext);
 
   const [interestsPlaces, setInterestsPlaces] = useState([]);
 
@@ -25,41 +32,32 @@ const InterestsPlacesScreen = ({ navigation }) => {
           visible: true,
         }));
 
-        const response = await fetchInterestsPlaces();
-
-        if (response.response) {
-          console.log(
-            "Failed to load interests places",
-            failedRequest(response).message
-          );
-        } else {
-          console.log("Interests places response", response);
-        }
-
-        // console.log("Interests places response", response);
-
-        setInterestsPlaces(
-          response.interestsPlaces.length ? response.interestsPlaces : []
-        );
+        const fetchInterestsPlacesResponse = await fetchInterestsPlaces();
 
         setLottieLoadingComponent((lottieLoadingComponent) => ({
           ...lottieLoadingComponent,
           visible: false,
         }));
+
+        if (fetchInterestsPlacesResponse.response) {
+          Toast.show(failedRequest(fetchInterestsPlacesResponse), {
+            duration: Toast.durations.LONG,
+            backgroundColor: AppColors.success,
+          });
+
+          return setInterestsPlaces([]);
+        }
+
+        return setInterestsPlaces(fetchInterestsPlacesResponse.interestsPlaces);
       };
 
       callFetchInterestsPlaces();
     }, [])
   );
 
-  const gotoCreateScreen = () => {
-    navigation.navigate("Create Interests Place");
-  };
-
   const handleInterestsPlaceClick = (interestsPlace) => {
-    navigation.navigate("Interests Place", {
-      interestsPlace: interestsPlace,
-    });
+    setInterestsPlace(interestsPlace);
+    navigation.navigate("Interests Place");
   };
 
   return (
@@ -67,7 +65,7 @@ const InterestsPlacesScreen = ({ navigation }) => {
       {interestsPlaces.length ? (
         <View style={{ flex: 1 }}>
           <View style={styles.headerContainer}>
-            <Text style={[styles.title, { color: "#fff" }]}>
+            <Text style={[styles.title, { color: AppColors.background }]}>
               Interests Places
             </Text>
             <View style={{ marginHorizontal: 5 }} />
@@ -76,9 +74,7 @@ const InterestsPlacesScreen = ({ navigation }) => {
 
           <InterestsPlacesList
             interestsPlaces={interestsPlaces}
-            handleInterestsPlaceClick={(interestsPlace) =>
-              handleInterestsPlaceClick(interestsPlace)
-            }
+            handleInterestsPlaceClick={handleInterestsPlaceClick}
           />
         </View>
       ) : (
@@ -91,12 +87,12 @@ const InterestsPlacesScreen = ({ navigation }) => {
         </View>
       )}
 
-      {!lottieLoadingComponent.visible && (
+      {!lottieLoadingComponent.visible && user.type === "admin" && (
         <View style={styles.buttonContainer}>
           <TouchableOpacityComponent
-            handleOnPress={gotoCreateScreen}
+            handleOnPress={() => navigation.navigate("Create Interests Place")}
             text={"Create new"}
-            type={AppColors.secondary}
+            type={AppColors.dark}
           />
         </View>
       )}
