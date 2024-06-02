@@ -27,7 +27,7 @@ const GetUserLocation = ({ setLoading, setLocation, setError }) => {
       subscription = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.High,
-          distanceInterval: 5,
+          distanceInterval: 1,
         },
         (location) => {
           setLoading(false);
