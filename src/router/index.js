@@ -13,11 +13,13 @@ import UsersLoginsScreen from "../screens/users-logins";
 import InterestsPlacesScreen from "../screens/interests-places/all";
 import InterestsPlaceScreen from "../screens/interests-places/one";
 import ProfileScreen from "../screens/profile";
+import NavigationScreen from "../screens/navigation/layout";
 
 const Stack = createNativeStackNavigator();
 
 const RouteStack = () => {
   return (
+    <>
       <Stack.Navigator
         initialRouteName="Welcome"
         screenOptions={{ headerShown: false }}
@@ -52,10 +54,16 @@ const RouteStack = () => {
         <Stack.Screen name="Interests Place" component={InterestsPlaceScreen} />
 
         <Stack.Screen
+          name="Navigate to Interests Place"
+          component={NavigationScreen}
+        />
+
+        <Stack.Screen
           name="Create Interests Place"
           component={CreateInterestsPlace}
         />
       </Stack.Navigator>
+    </>
   );
 };
 
