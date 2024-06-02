@@ -57,7 +57,7 @@ const InterestsPlacesScreen = ({ navigation }) => {
 
   const handleInterestsPlaceClick = (interestsPlace) => {
     setInterestsPlace(interestsPlace);
-    navigation.navigate("Interests Place");
+    navigation.navigate("Navigate to Interests Place");
   };
 
   return (
