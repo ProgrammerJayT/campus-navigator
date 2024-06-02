@@ -1,21 +1,34 @@
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import {
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import Icons from "@expo/vector-icons/FontAwesome5";
-import { AppColors } from "../../../constants/colors";
+import Icons from "@expo/vector-icons/Entypo";
 import ComponentsStateContext from "../../../state-management/context/components";
-import SlideButton from "rn-slide-button";
 import { deleteInterestsPlace } from "../../../services/interests-places";
+import { styles } from "./styles";
+import { AppColors } from "../../../constants/colors";
+import AuthContext from "../../../state-management/context/auth";
+import LocationStateContext from "../../../state-management/context/location";
+import HeaderSection from "./sections/header";
+import NavigationStateContext from "../../../state-management/context/navigation";
 
 const InterestsPlaceScreen = ({ navigation, route }) => {
+  const haversine = require("haversine");
+
+  const { user } = useContext(AuthContext);
+
+  const { location } = useContext(LocationStateContext);
+
   const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(
     ComponentsStateContext
   );
 
-  const { interestsPlace } = route.params;
+  const { interestsPlace } = useContext(NavigationStateContext);
 
-  useEffect(() => {
-    console.log("Current interests place", interestsPlace);
-  }, []);
 
   const handleDeleteUser = async () => {
     setLottieLoadingComponent((lottieLoadingComponent) => ({
@@ -40,65 +53,144 @@ const InterestsPlaceScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.profileContainer}>
-        <Icons name="building" size={100} color={AppColors.secondary} />
-        <Text style={styles.name}>{`${interestsPlace?.name}`}</Text>
+      <HeaderSection title={interestsPlace?.name} />
+
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: 10,
+          paddingHorizontal: 20,
+          alignItems: "center",
+        }}
+      >
+        <Icons name="location" size={20} color={"black"} />
+        <Text style={{ marginHorizontal: 10, fontSize: 11 }}>
+          GPS:{" "}
+          {`${interestsPlace.latitude}, ${interestsPlace.longitude}`}
+        </Text>
+      </View>
+
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: 10,
+          paddingHorizontal: 20,
+          alignItems: "center",
+        }}
+      >
+        <Icons name="calendar" size={20} color={"black"} />
+        <Text style={{ marginHorizontal: 10, fontSize: 10 }}>
+          Date created: {`${interestsPlace.createDate}`}
+        </Text>
+      </View>
+
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: 10,
+          paddingHorizontal: 20,
+          alignItems: "center",
+        }}
+      >
+        <Icons name="users" size={20} color={"black"} />
+        <Text style={{ marginHorizontal: 10, fontSize: 10 }}>
+          Visits: {`${interestsPlace.createDate}`}
+        </Text>
       </View>
 
       <View style={{ flex: 1 }} />
 
       <View style={styles.buttonsContainer}>
-        {/* <View style={[styles.buttonContainer, { flex: 1 }]}>
-          <TouchableOpacityComponent text={"Edit"} type={AppColors.secondary} />
-        </View> */}
-
-        <View style={[styles.buttonContainer, { flex: 1 }]}>
-          <SlideButton
-            title={"Delete interests place"}
-            autoReset
-            underlayStyle={{ backgroundColor: "red" }}
-            containerStyle={{
-              padding: 0,
-              backgroundColor: "red",
+        {user.type !== "admin" ? (
+          <TouchableOpacity
+            style={{
+              backgroundColor: "black",
+              flex: 1,
+              borderRadius: 10,
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
             }}
-            autoResetDelay={100}
-            onReachedToEnd={handleDeleteUser}
-          />
-        </View>
+          >
+            <Text
+              style={{
+                fontSize: 15,
+                color: "white",
+                textAlign: "center",
+                paddingVertical: 10,
+                marginHorizontal: 5,
+              }}
+            >
+              Go now
+            </Text>
+            <Icons name="direction" size={20} color={AppColors.background} />
+          </TouchableOpacity>
+        ) : (
+          <>
+            <TouchableOpacity
+              style={{
+                flex: 1,
+                backgroundColor: "black",
+                marginRight: 10,
+                borderRadius: 10,
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onPress={() =>
+                navigation.navigate("Interests Place Bounds", {
+                  interestsPlace: interestsPlace,
+                })
+              }
+            >
+              <Text
+                style={{
+                  fontSize: 15,
+                  color: "white",
+                  textAlign: "center",
+                  paddingVertical: 10,
+                  marginHorizontal: 5,
+                }}
+              >
+                Manage
+              </Text>
+              <Icons name="cog" size={20} color={AppColors.background} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{
+                flex: 1,
+                backgroundColor: "black",
+                marginLeft: 10,
+                borderRadius: 10,
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onPress={() =>
+                navigation.navigate("Navigate to Interests Place", {
+                  interestsPlace: interestsPlace,
+                })
+              }
+            >
+              <Text
+                style={{
+                  fontSize: 15,
+                  color: "white",
+                  textAlign: "center",
+                  paddingVertical: 10,
+                  marginHorizontal: 5,
+                }}
+              >
+                Directions
+              </Text>
+              <Icons name="direction" size={20} color={AppColors.background} />
+            </TouchableOpacity>
+          </>
+        )}
       </View>
     </SafeAreaView>
   );
 };
 
 export default InterestsPlaceScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingBottom: 10,
-  },
-
-  profileContainer: {
-    alignItems: "center",
-    marginTop: 20,
-  },
-
-  name: {
-    fontSize: 20,
-    marginTop: 10,
-    color: AppColors.secondary,
-    fontWeight: "bold",
-  },
-
-  buttonsContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  buttonContainer: {
-    // flex: 1,
-    marginHorizontal: 20,
-  },
-});
