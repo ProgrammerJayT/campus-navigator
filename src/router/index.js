@@ -15,12 +15,14 @@ import InterestsPlaceScreen from "../screens/interests-places/one";
 import ProfileScreen from "../screens/profile";
 import InterestsPlaceBoundsScreen from "../screens/bounds/all/layout";
 import NavigationScreen from "../screens/navigation/layout";
+import NavigationListener from "../screens/navigation/extension";
 
 const Stack = createNativeStackNavigator();
 
 const RouteStack = () => {
   return (
     <>
+      <NavigationListener />
       <Stack.Navigator
         initialRouteName="Welcome"
         screenOptions={{ headerShown: false }}
