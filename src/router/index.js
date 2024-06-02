@@ -18,7 +18,6 @@ const Stack = createNativeStackNavigator();
 
 const RouteStack = () => {
   return (
-    <View style={styles.root}>
       <Stack.Navigator
         initialRouteName="Welcome"
         screenOptions={{ headerShown: false }}
@@ -57,21 +56,7 @@ const RouteStack = () => {
           component={CreateInterestsPlace}
         />
       </Stack.Navigator>
-    </View>
   );
 };
 
 export default RouteStack;
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-
-  title: {
-    textAlign: "center",
-    marginTop: 10,
-    fontSize: 25,
-  },
-});
