@@ -17,7 +17,7 @@ const Item = ({ interestsPlace, handleInterestsPlaceClick }) => (
     onPress={() => handleInterestsPlaceClick(interestsPlace)}
   >
     <View style={{ flexDirection: "row", alignItems: "center" }}>
-      <Icons name="volleyball-ball" size={20} color={AppColors.secondary} />
+      <Icons name="volleyball-ball" size={20} color={AppColors.primary} />
       <View style={{ marginHorizontal: 5 }} />
       <Text style={styles.title}>{`${interestsPlace.name}`}</Text>
     </View>
