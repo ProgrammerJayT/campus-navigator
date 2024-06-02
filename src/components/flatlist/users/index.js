@@ -16,7 +16,7 @@ const Item = ({ user, handleClick }) => (
     <View
       style={{ flexDirection: "row", alignItems: "center", marginBottom: 5 }}
     >
-      <Icons name="user-alt" size={20} color={AppColors.secondary} />
+      <Icons name="user-alt" size={20} color={AppColors.primary} />
       <View style={{ marginHorizontal: 5 }} />
       <Text style={styles.title}>{`${user.name} ${user.surname}`}</Text>
     </View>
@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 15,
+    fontWeight: "bold",
   },
 
   email: {
