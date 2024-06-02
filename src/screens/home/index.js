@@ -40,8 +40,6 @@ const HomeScreen = ({ navigation }) => {
           </View>
         )}
 
-        <View style={{ flex: 1 }} />
-
         <Image source={HomeLogo} style={styles.logo} resizeMode="contain" />
 
         <View style={{ flex: 1 }} />
@@ -58,7 +56,7 @@ const HomeScreen = ({ navigation }) => {
           <View
             style={{
               flex: 1,
-              backgroundColor: AppColors.secondary,
+              backgroundColor: AppColors.primary,
               height: 2,
               marginRight: 10,
             }}
@@ -66,21 +64,15 @@ const HomeScreen = ({ navigation }) => {
 
           <TouchableOpacity
             onPress={() => handleNavigation("Profile")}
-            style={{
-              borderRadius: 20,
-              backgroundColor: AppColors.secondary,
-              width: "50%",
-            }}
+            style={styles.usernameButton}
           >
-            <Text
-              style={{
-                color: "white",
-                textAlign: "center",
-                padding: 20,
-              }}
-            >
-              Hello, {user.name}
-            </Text>
+            <Text style={styles.usernameText}>Hello, {user.name}</Text>
+
+            <View style={styles.userTypeTextContainer}>
+              {user.type === "admin" && (
+                <Text style={styles.userTypeText}>Administrator</Text>
+              )}
+            </View>
           </TouchableOpacity>
 
           <View
@@ -93,57 +85,50 @@ const HomeScreen = ({ navigation }) => {
           />
         </View>
 
-        {user.type === "admin" ? (
-          <>
-            <View style={styles.buttonsContainer}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handleNavigation("Users")}
-              >
-                <Text style={styles.buttonText}>Users</Text>
-                <View style={{ marginHorizontal: 5 }} />
-                <Icons name="users" size={20} color="white" />
-              </TouchableOpacity>
+        {user.type === "admin" && (
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handleNavigation("Users")}
+            >
+              <Text style={styles.buttonText}>Users</Text>
+              <View style={{ marginHorizontal: 5 }} />
+              <Icons name="users" size={20} color="white" />
+            </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handleNavigation("User Logins")}
-              >
-                <Text style={styles.buttonText}>User Logins</Text>
-                <View style={{ marginHorizontal: 5 }} />
-                <Icons name="clipboard-list" size={20} color="white" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.buttonsContainer}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handleNavigation("Interests Places")}
-              >
-                <Text style={styles.buttonText}>Interests Places</Text>
-                <View style={{ marginHorizontal: 5 }} />
-                <Icons name="volleyball-ball" size={20} color="white" />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handleNavigation("Visits")}
-              >
-                <Text style={styles.buttonText}>Visits</Text>
-                <View style={{ marginHorizontal: 5 }} />
-                <Icons name="hospital-user" size={20} color="white" />
-              </TouchableOpacity>
-            </View>
-          </>
-        ) : (
-          <>
-            <View style={{ flex: 1 }} />
-            <Text style={{ fontSize: 30, color: "red", textAlign: "center" }}>
-              Administrator Use Only
-            </Text>
-            <View style={{ flex: 1 }} />
-          </>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handleNavigation("User Logins")}
+            >
+              <Text style={styles.buttonText}>User Logins</Text>
+              <View style={{ marginHorizontal: 5 }} />
+              <Icons name="clipboard-list" size={20} color="white" />
+            </TouchableOpacity>
+          </View>
         )}
+
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => handleNavigation("Interests Places")}
+          >
+            <Text style={styles.buttonText}>Interests Places</Text>
+            <View style={{ marginHorizontal: 5 }} />
+            <Icons name="volleyball-ball" size={20} color="white" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => handleNavigation("Visits")}
+          >
+            <Text style={styles.buttonText}>
+              {" "}
+              {user.type === "admin" ? "" : "My"} Visits
+            </Text>
+            <View style={{ marginHorizontal: 5 }} />
+            <Icons name="hospital-user" size={20} color="white" />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
