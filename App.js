@@ -8,6 +8,7 @@ import ComponentsContainer from "./src/components/container";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { LocationStateProvider } from "./src/state-management/context/location";
 import { AuthProvider } from "./src/state-management/context/auth";
+import { NavigationStateProvider } from "./src/state-management/context/navigation";
 
 const App = () => {
   useEffect(() => {
@@ -21,7 +22,9 @@ const App = () => {
           <ComponentsStateProvider>
             <GestureHandlerRootView>
               <LocationStateProvider>
-                <RouteStack />
+                <NavigationStateProvider>
+                  <RouteStack />
+                </NavigationStateProvider>
               </LocationStateProvider>
             </GestureHandlerRootView>
             <ComponentsContainer />
