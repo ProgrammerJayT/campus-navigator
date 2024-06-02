@@ -29,6 +29,24 @@ export const fetchBounds = async (interestsPlaceId) => {
   }
 };
 
+export const createBound = async (bound) => {
+  console.log("Bound", bound);
+  await AsyncStorage.getItem("token");
+
+  try {
+    const response = await axios.post(`${process.env.API_URL}/api/v1/bounds`, {
+      latitude: bound?.latitude.toString(),
+      longitude: bound.longitude.toString(),
+      interests_place_id: bound?.interestsPlaceId,
+      surroundings: bound?.surroundings,
+    });
+
+    return response.data;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const createInterestsPlace = async (place) => {
   await AsyncStorage.getItem("token");
 
