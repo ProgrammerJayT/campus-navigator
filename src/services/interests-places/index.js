@@ -15,6 +15,20 @@ export const fetchInterestsPlaces = async () => {
   }
 };
 
+export const fetchBounds = async (interestsPlaceId) => {
+  await AsyncStorage.getItem("token");
+
+  try {
+    const response = await axios.get(`${process.env.API_URL}/api/v1/bounds`, {
+      params: { interestsPlaceId: interestsPlaceId },
+    });
+
+    return response.data;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const createInterestsPlace = async (place) => {
   await AsyncStorage.getItem("token");
 
