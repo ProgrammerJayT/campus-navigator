@@ -4,7 +4,7 @@ import { AppColors } from "../../../constants/colors";
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: AppColors.background,
   },
 
   noUsersContainer: {
@@ -22,11 +22,12 @@ export const styles = StyleSheet.create({
   buttonContainer: {
     width: "100%",
     paddingHorizontal: "25%",
+    backgroundColor: "transparent",
   },
 
   headerContainer: {
     elevation: 10,
-    backgroundColor: AppColors.secondary,
+    backgroundColor: AppColors.primary,
     marginHorizontal: 10,
     borderRadius: 10,
     flexDirection: "row",
