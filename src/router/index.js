@@ -1,11 +1,10 @@
-import { StyleSheet, View } from "react-native";
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "../screens/home";
 import WelcomeScreen from "../screens/welcome";
 import RegisterScreen from "../screens/auth/register";
 import VisitsScreen from "../screens/visits";
-import UsersScreen from "../screens/users/all";
+import UsersScreen from "../screens/users/layout";
 import UserScreen from "../screens/users/one";
 import LoginScreen from "../screens/auth/login";
 import CreateInterestsPlace from "../screens/interests-places/create";
