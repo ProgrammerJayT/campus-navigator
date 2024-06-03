@@ -8,7 +8,7 @@ const GetUserLocation = ({ setLoading, setLocation, setError }) => {
     let subscription;
 
     (async () => {
-      if (Platform.OS === "android" && !Device.isDevice) {
+      if (!Device.isDevice) {
         setError(
           "Oops, this will not work on Snack in an Android Emulator. Try it on your device!"
         );
