@@ -90,7 +90,7 @@ const NavigationScreen = ({ navigation, route }) => {
             style={{
               backgroundColor: AppColors.background,
               padding: 15,
-              borderRadius: "100%",
+              borderRadius: 1000,
               shadowOffset: {
                 width: 0,
                 height: 0,

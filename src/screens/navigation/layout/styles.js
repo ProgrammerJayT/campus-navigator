@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
   navigateButton: {
     padding: 20,
     backgroundColor: AppColors.background,
-    borderRadius: "100%",
+    borderRadius: 1000,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
