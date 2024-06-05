@@ -8,48 +8,37 @@ const GetUserLocation = ({ setLoading, setLocation, setError }) => {
     let subscription;
 
     (async () => {
-      try {
-        if (!Device.isDevice) {
-          setError(
-            "Oops, this will not work on Snack in an Android Emulator. Try it on your device!"
-          );
-          return;
-        }
-
-        console.log("Requesting foreground permissions...");
-        let { status } = await Location.requestForegroundPermissionsAsync();
-
-        if (status !== "granted") {
-          setError("Permission to access location was denied");
-          console.log("Permission denied");
-          return;
-        }
-
-        console.log("Foreground permissions granted");
-        setLoading(true);
-
-        console.log("Starting location subscription...");
-        subscription = await Location.watchPositionAsync(
-          {
-            accuracy: Location.Accuracy.High,
-            distanceInterval: 1,
-          },
-          (location) => {
-            setLoading(false);
-            setLocation(location);
-            console.log("Location updated:", location);
-          }
+      if (Platform.OS === "android" && !Device.isDevice) {
+        setError(
+          "Oops, this will not work on Snack in an Android Emulator. Try it on your device!"
         );
-      } catch (error) {
-        setError(`Error getting location: ${error.message}`);
-        console.log("Error getting location:", error);
+        return;
       }
+
+      let { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== "granted") {
+        setError("Permission to access location was denied");
+        return;
+      }
+
+      setLoading(true);
+
+      subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          distanceInterval: 1,
+        },
+        (location) => {
+          setLoading(false);
+          setLocation(location);
+        }
+      );
     })();
 
     return () => {
       if (subscription) {
         subscription.remove();
-        console.log("Location subscription removed");
       }
     };
   }, []);
