@@ -29,7 +29,6 @@ const InterestsPlaceScreen = ({ navigation, route }) => {
 
   const { interestsPlace } = useContext(NavigationStateContext);
 
-
   const handleDeleteUser = async () => {
     setLottieLoadingComponent((lottieLoadingComponent) => ({
       ...lottieLoadingComponent,
@@ -65,8 +64,7 @@ const InterestsPlaceScreen = ({ navigation, route }) => {
       >
         <Icons name="location" size={20} color={"black"} />
         <Text style={{ marginHorizontal: 10, fontSize: 11 }}>
-          GPS:{" "}
-          {`${interestsPlace.latitude}, ${interestsPlace.longitude}`}
+          GPS: {`${interestsPlace.latitude}, ${interestsPlace.longitude}`}
         </Text>
       </View>
 
@@ -157,7 +155,7 @@ const InterestsPlaceScreen = ({ navigation, route }) => {
               <Icons name="cog" size={20} color={AppColors.background} />
             </TouchableOpacity>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={{
                 flex: 1,
                 backgroundColor: "black",
@@ -167,11 +165,7 @@ const InterestsPlaceScreen = ({ navigation, route }) => {
                 justifyContent: "center",
                 alignItems: "center",
               }}
-              onPress={() =>
-                navigation.navigate("Navigate to Interests Place", {
-                  interestsPlace: interestsPlace,
-                })
-              }
+              onPress={() => navigation.navigate("Navigate to Interests Place")}
             >
               <Text
                 style={{
@@ -185,7 +179,7 @@ const InterestsPlaceScreen = ({ navigation, route }) => {
                 Directions
               </Text>
               <Icons name="direction" size={20} color={AppColors.background} />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </>
         )}
       </View>
