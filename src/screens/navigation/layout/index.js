@@ -100,6 +100,7 @@ const NavigationScreen = ({ navigation, route }) => {
             }}
             onPress={() => {
               //
+              navigation.navigate("Interests Place");
             }}
           >
             <FontAwesome5 name={"cogs"} size={20} color={AppColors.dark} />
