@@ -11,6 +11,13 @@ export const styles = StyleSheet.create({
     paddingBottom: 10,
   },
 
+  formContainer: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+  },
+
   loadingTextContainer: {
     flex: 1,
     justifyContent: "center",

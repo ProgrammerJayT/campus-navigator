@@ -1,12 +1,6 @@
-import {
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { styles } from "./styles";
-import HeaderSection from "../sections/header";
 import InterestsPlacesBoundsList from "../sections/list";
 import {
   createBound,
@@ -18,13 +12,13 @@ import BoundsModalComponent from "../modal/add-bound";
 import LocationStateContext from "../../../../state-management/context/location";
 import ComponentsStateContext from "../../../../state-management/context/components";
 import Toast from "react-native-root-toast";
+import NavigationStateContext from "../../../../state-management/context/navigation";
+import HeaderSection from "../../../../components/screens/header";
 
 const InterestsPlaceBoundsScreen = ({ navigation, route }) => {
   const [bounds, setBounds] = useState([]);
 
   const [modal, setModal] = useState(false);
-
-  const { interestsPlace } = route.params;
 
   const [loading, setLoading] = useState(false);
 
@@ -33,6 +27,8 @@ const InterestsPlaceBoundsScreen = ({ navigation, route }) => {
   const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(
     ComponentsStateContext
   );
+
+  const { interestsPlace } = useContext(NavigationStateContext);
 
   useEffect(() => {
     //
@@ -136,7 +132,7 @@ const InterestsPlaceBoundsScreen = ({ navigation, route }) => {
       <View style={styles.addButtonContainer}>
         <TouchableOpacity
           onPress={() => setModal(true)}
-          style={{ backgroundColor: "black", borderRadius: 10 }}
+          style={{ backgroundColor: AppColors.primary, borderRadius: 10 }}
         >
           <Text style={[styles.title, { color: AppColors.background }]}>
             New

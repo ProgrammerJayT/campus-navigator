@@ -11,9 +11,14 @@ import {
 import Icons from "@expo/vector-icons/FontAwesome5";
 import { AppColors } from "../../../constants/colors";
 
-const Item = ({ interestsPlace, handleInterestsPlaceClick }) => (
+const Item = ({ interestsPlace, handleInterestsPlaceClick, direction }) => (
   <TouchableOpacity
-    style={styles.item}
+    style={[
+      styles.item,
+      direction === "horizontal"
+        ? { marginRight: 10 }
+        : { marginHorizontal: 16 },
+    ]}
     onPress={() => handleInterestsPlaceClick(interestsPlace)}
   >
     <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -30,13 +35,24 @@ const Item = ({ interestsPlace, handleInterestsPlaceClick }) => (
 const InterestsPlacesList = ({
   interestsPlaces,
   handleInterestsPlaceClick,
+  direction = "vertical",
+  search,
 }) => {
+  const filteredPlaces = search
+    ? interestsPlaces.filter((place) =>
+        place.name.toLowerCase().includes(search.toLowerCase())
+      )
+    : interestsPlaces;
+
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        data={interestsPlaces}
+        horizontal={direction === "horizontal" ? true : false}
+        data={filteredPlaces}
+        showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
           <Item
+            direction={direction}
             interestsPlace={item}
             handleInterestsPlaceClick={(interestsPlace) =>
               handleInterestsPlaceClick(interestsPlace)
@@ -58,8 +74,7 @@ const styles = StyleSheet.create({
   item: {
     backgroundColor: "#fff",
     padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
+    marginTop: 8,
     borderRadius: 10,
     shadowColor: "#000",
     shadowOffset: {

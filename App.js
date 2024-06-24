@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { LocationStateProvider } from "./src/state-management/context/location";
 import { AuthProvider } from "./src/state-management/context/auth";
 import { NavigationStateProvider } from "./src/state-management/context/navigation";
+import { InterestsPlacesProvider } from "./src/state-management/context/interests-places";
 
 const App = () => {
   useEffect(() => {
@@ -23,7 +24,9 @@ const App = () => {
             <GestureHandlerRootView>
               <LocationStateProvider>
                 <NavigationStateProvider>
-                  <RouteStack />
+                  <InterestsPlacesProvider>
+                    <RouteStack />
+                  </InterestsPlacesProvider>
                 </NavigationStateProvider>
               </LocationStateProvider>
             </GestureHandlerRootView>

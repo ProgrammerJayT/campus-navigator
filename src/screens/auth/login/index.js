@@ -76,7 +76,7 @@ const LoginScreen = ({ navigation }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
+      style={styles.root}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <SafeAreaView style={styles.container}>
@@ -148,7 +148,7 @@ const LoginScreen = ({ navigation }) => {
                   <View style={{ marginTop: 50 }}>
                     <TouchableOpacityComponent
                       size={"m"}
-                      type={AppColors.secondary}
+                      type={AppColors.primary}
                       text={"Submit"}
                       disabled={!isValid}
                       handleOnPress={handleSubmit}

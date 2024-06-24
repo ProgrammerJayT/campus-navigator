@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   SafeAreaView,
   View,
@@ -15,7 +15,7 @@ import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 const Item = ({ item }) => (
   <TouchableWithoutFeedback style={styles.item}>
     <View style={{ flexDirection: "row", alignItems: "center" }}>
-      <Icons name="user-alt" size={20} color={AppColors.secondary} />
+      <Icons name="user-alt" size={20} color={AppColors.primary} />
       <View style={{ marginHorizontal: 5 }} />
       <Text style={styles.title}>{`${item?.name} ${item?.surname}`}</Text>
     </View>

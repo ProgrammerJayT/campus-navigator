@@ -12,6 +12,7 @@ import { failedRequest } from "../../../services/exception";
 import AuthContext from "../../../state-management/context/auth";
 import Toast from "react-native-root-toast";
 import NavigationStateContext from "../../../state-management/context/navigation";
+import HeaderSection from "../sections/header";
 
 const InterestsPlacesScreen = ({ navigation }) => {
   const { user } = useContext(AuthContext);
@@ -62,16 +63,10 @@ const InterestsPlacesScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <HeaderSection title={"Interests Places"} />
+
       {interestsPlaces.length ? (
         <View style={{ flex: 1 }}>
-          <View style={styles.headerContainer}>
-            <Text style={[styles.title, { color: AppColors.background }]}>
-              Interests Places
-            </Text>
-            <View style={{ marginHorizontal: 5 }} />
-            <Icons name="volleyball-ball" size={20} color="white" />
-          </View>
-
           <InterestsPlacesList
             interestsPlaces={interestsPlaces}
             handleInterestsPlaceClick={handleInterestsPlaceClick}
@@ -92,7 +87,7 @@ const InterestsPlacesScreen = ({ navigation }) => {
           <TouchableOpacityComponent
             handleOnPress={() => navigation.navigate("Create Interests Place")}
             text={"Create new"}
-            type={AppColors.dark}
+            type={AppColors.primary}
           />
         </View>
       )}

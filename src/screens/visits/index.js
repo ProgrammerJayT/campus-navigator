@@ -10,72 +10,99 @@ import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEff
 import { failedRequest } from "../../services/exception";
 import UsersLoginsList from "../../components/flatlist/users-logins";
 import { fetchVisits } from "../../services/visits";
+import HeaderSection from "../../components/screens/header";
+import NavigationStateContext from "../../state-management/context/navigation";
+import VisitsList from "../../components/flatlist/visits";
 
-const VisitsScreen = ({ navigation }) => {
+const UserVisitsScreen = ({ navigation, route }) => {
   const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(
     ComponentsStateContext
   );
 
+  const { interestsPlace } = useContext(NavigationStateContext);
+
+  const [header, setHeader] = useState("");
+
   const [visits, setVisits] = useState([]);
+
+  useEffect(() => {
+    console.log("Params interests place id", interestsPlace);
+  }, []);
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchData = async () => {
-        setLottieLoadingComponent((lottieLoadingComponent) => ({
-          ...lottieLoadingComponent,
-          visible: true,
-        }));
-        const response = await fetchVisits();
-
-        console.log("Response", failedRequest(response));
-
-        setVisits(response.visits.length ? response.visits : []);
-
-        setLottieLoadingComponent((lottieLoadingComponent) => ({
-          ...lottieLoadingComponent,
-          visible: false,
-        }));
-      };
-
-      fetchData();
+      callFetchVisits();
     }, [])
   );
 
-  const handleUserClick = (user) => {
-    navigation.navigate("User", { user: user });
+  const callFetchVisits = async () => {
+    toggleLoader(true);
+
+    let filters = {
+      userId: user?.id,
+      interestsPlaceId: interestsPlace?.id,
+    };
+
+    const fetchVisitsResponse = await fetchVisits(filters);
+
+    let requestFailed = fetchVisitsResponse?.response ? true : false;
+
+    if (requestFailed) {
+      setVisits([]);
+      toastMessage(failedRequest(fetchVisitsResponse).message, "danger");
+    } else {
+      setVisits(fetchVisitsResponse?.visits);
+    }
+
+    toggleLoader(false);
+  };
+
+  const toastMessage = (message, severity) => {
+    Toast.show(message, {
+      duration: Toast.durations.LONG,
+      backgroundColor: AppColors[severity],
+    });
+  };
+
+  const toggleLoader = (visibility) => {
+    setLottieLoadingComponent((lottieLoadingComponent) => ({
+      ...lottieLoadingComponent,
+      visible: visibility,
+    }));
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {visits.length ? (
-        <View style={{ flex: 1 }}>
-          <View style={styles.headerContainer}>
-            <Text style={[styles.title, { color: "#fff" }]}>Login History</Text>
-            <View style={{ marginHorizontal: 5 }} />
-            <Icons name="users" size={20} color="white" />
+    <SafeAreaView style={styles.root}>
+      <View style={styles.container}>
+        <HeaderSection title={`${interestsPlace?.name} visits`} />
+        {visits.length ? (
+          <View style={{ flex: 1 }}>
+            <VisitsList visits={[]} />
           </View>
-
-          <UsersLoginsList usersLogins={usersLogins} />
-        </View>
-      ) : (
-        <View style={styles.noUsersContainer}>
-          <Text style={styles.title}>
-            {lottieLoadingComponent.visible
-              ? "Fetching visits"
-              : "No visits found"}
-          </Text>
-        </View>
-      )}
+        ) : (
+          <View style={styles.noUsersContainer}>
+            <Text style={styles.title}>
+              {lottieLoadingComponent.visible
+                ? "Fetching visits"
+                : "No visits found"}
+            </Text>
+          </View>
+        )}
+      </View>
     </SafeAreaView>
   );
 };
 
-export default VisitsScreen;
+export default UserVisitsScreen;
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: AppColors.background,
+  },
+
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
 
   noUsersContainer: {

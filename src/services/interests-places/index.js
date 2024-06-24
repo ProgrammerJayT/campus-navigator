@@ -2,7 +2,9 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const fetchInterestsPlaces = async () => {
-  await AsyncStorage.getItem("token");
+  const token = await AsyncStorage.getItem("token");
+
+  console.log("This is your token", token);
 
   try {
     const response = await axios.get(

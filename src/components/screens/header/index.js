@@ -1,18 +1,15 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import React, { useContext } from "react";
 import { styles } from "./styles";
-import AuthContext from "../../../../../state-management/context/auth";
-import Icons from "@expo/vector-icons/Entypo";
-import { AppColors } from "../../../../../constants/colors";
+import AntDesignIcons from "@expo/vector-icons/AntDesign";
+import { AppColors } from "../../../constants/colors";
 
-const HeaderSection = ({ title }) => {
-  const { user } = useContext(AuthContext);
-
+const HeaderSection = ({ title, icon, handleMenuClick }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
 
-      {user?.type === "admin" && (
+      {icon && (
         <View
           style={{
             width: "100%",
@@ -21,13 +18,9 @@ const HeaderSection = ({ title }) => {
             alignItems: "flex-end",
           }}
         >
-          <TouchableOpacity
-            onPress={() => {
-              console.log("3 dots pressed");
-            }}
-          >
-            <Icons
-              name="dots-three-vertical"
+          <TouchableOpacity onPress={handleMenuClick}>
+            <AntDesignIcons
+              name={icon}
               size={20}
               color={AppColors.background}
             />

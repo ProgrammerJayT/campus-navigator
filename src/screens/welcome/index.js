@@ -10,6 +10,7 @@ import { failedRequest } from "../../services/exception";
 import Toast from "react-native-root-toast";
 import ComponentsStateContext from "../../state-management/context/components";
 import AuthContext from "../../state-management/context/auth";
+import { styles } from "./styles";
 
 const WelcomeScreen = ({ navigation }) => {
   const { user, setUser } = useContext(AuthContext);
@@ -20,12 +21,7 @@ const WelcomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     const checkToken = async () => {
-      console.log("Checking token");
-
-      setLottieLoadingComponent((lottieLoadingComponent) => ({
-        ...lottieLoadingComponent,
-        visible: true,
-      }));
+      toggleLoader(true);
 
       const token = await AsyncStorage.getItem("token");
 
@@ -33,38 +29,34 @@ const WelcomeScreen = ({ navigation }) => {
         const tokenValid = await verifyToken();
 
         if (tokenValid.response) {
-          setLottieLoadingComponent((lottieLoadingComponent) => ({
-            ...lottieLoadingComponent,
-            visible: false,
-          }));
+          toggleLoader(false);
 
           return Toast.show("Session ended. Please login", {
             duration: Toast.durations.LONG,
-            backgroundColor: "red",
-            position: 20,
+            backgroundColor: AppColors.primary,
+            position: 700,
           });
         }
 
         const fetchUserResponse = await fetchUser();
-        console.log("User response", fetchUserResponse?.user);
+        console.log(
+          "User response",
+          fetchUserResponse.user
+            ? fetchUserResponse
+            : failedRequest(fetchUserResponse)
+        );
 
         setUser((user) => ({
           ...user,
           ...fetchUserResponse?.user,
         }));
 
-        setLottieLoadingComponent((lottieLoadingComponent) => ({
-          ...lottieLoadingComponent,
-          visible: false,
-        }));
+        toggleLoader(false);
 
         return handleNavigation("Home");
       }
 
-      return setLottieLoadingComponent((lottieLoadingComponent) => ({
-        ...lottieLoadingComponent,
-        visible: false,
-      }));
+      return toggleLoader(false);
     };
 
     checkToken();
@@ -74,59 +66,39 @@ const WelcomeScreen = ({ navigation }) => {
     navigation.navigate(route);
   };
 
+  const toggleLoader = (visibility) => {
+    setLottieLoadingComponent((lottieLoadingComponent) => ({
+      ...lottieLoadingComponent,
+      visible: visibility,
+    }));
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      {lottieLoadingComponent && (
-        <SpinnerComponent visible={lottieLoadingComponent} />
-      )}
+    <SafeAreaView style={styles.root}>
+      <View style={styles.container}>
+        <Text style={styles.headingText}>Campus Orient</Text>
 
-      <Image source={WelcomeLogo} style={styles.logo} resizeMode="contain" />
+        <Image source={WelcomeLogo} style={styles.logo} resizeMode="contain" />
 
-      {!lottieLoadingComponent.visible && (
-        <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacityComponent
-              size={"m"}
-              type={AppColors.primary}
-              text={"Sign Up"}
-              handleOnPress={() => {
-                handleNavigation("Register");
-              }}
-            />
+        {!lottieLoadingComponent.visible && (
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-around" }}
+          >
+            <View style={styles.buttonContainer}>
+              <TouchableOpacityComponent
+                size={"m"}
+                type={AppColors.primary}
+                text={"Get Started"}
+                handleOnPress={() => {
+                  handleNavigation("Login");
+                }}
+              />
+            </View>
           </View>
-
-          <View style={styles.buttonContainer}>
-            <TouchableOpacityComponent
-              size={"m"}
-              type={AppColors.secondary}
-              text={"Sign In"}
-              handleOnPress={() => {
-                handleNavigation("Login");
-              }}
-            />
-          </View>
-        </View>
-      )}
+        )}
+      </View>
     </SafeAreaView>
   );
 };
 
 export default WelcomeScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    backgroundColor: "#fff",
-  },
-
-  logo: {
-    flex: 1, // Take up available space
-    width: "100%",
-  },
-
-  buttonContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-});

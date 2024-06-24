@@ -1,103 +1,54 @@
 import React, { useState } from "react";
-import { Alert, Modal, StyleSheet, Text, Pressable, View } from "react-native";
-import TouchableOpacityComponent from "../../touchable-opacity";
+import {
+  Alert,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { AppColors } from "../../../constants/colors";
+import { styles } from "./styles";
+import HeaderSection from "../../screens/header";
+import AntDesignIcons from "@expo/vector-icons/AntDesign";
 
-const PromptModal = ({ visible, setModalVisible, handleDeleteUser }) => {
+const PromptModal = ({ message, handleClick }) => {
   return (
-    <View style={styles.centeredView}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={visible}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-          setModalVisible(!visible);
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>Delete user?</Text>
+    <View style={styles.formContainer}>
+      <View style={{ alignItems: "center", marginBottom: -12, zIndex: 1 }}>
+        <TouchableOpacity
+          onPress={() => {
+            handleClick("cancel");
+          }}
+          style={{
+            borderRadius: 100,
+            backgroundColor: AppColors.primary,
+          }}
+        >
+          <AntDesignIcons
+            name="closecircleo"
+            size={25}
+            color={AppColors.background}
+          />
+        </TouchableOpacity>
+      </View>
 
-            <View
-              style={{
-                flexDirection: "row",
-              }}
-            >
-              <View
-                style={{ marginHorizontal: 10, paddingHorizontal: 10, flex: 1 }}
-              >
-                <TouchableOpacityComponent
-                  size={"s"}
-                  type={AppColors.secondary}
-                  text={"Cancel"}
-                  handleOnPress={() => setModalVisible(!visible)}
-                />
-              </View>
+      <HeaderSection title={"Caution"} />
 
-              <View
-                style={{ marginHorizontal: 10, paddingHorizontal: 10, flex: 1 }}
-              >
-                <TouchableOpacityComponent
-                  size={"s"}
-                  type={"green"}
-                  text={"Yes"}
-                  handleOnPress={handleDeleteUser}
-                />
-              </View>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <View style={{ paddingHorizontal: 20 }}>
+        <Text style={styles.confirmMessageText}>{message}</Text>
+      </View>
+
+      <View style={{ alignItems: "center", paddingHorizontal: "25%" }}>
+        <TouchableOpacity
+          style={styles.confirmButton}
+          onPress={() => handleClick("confirm")}
+        >
+          <Text style={styles.confirmButtonText}>Confirm</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  centeredView: {
-    flex: 1,
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    // alignItems: "center",
-    position: "absolute",
-  },
-
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 10,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
-  buttonOpen: {
-    backgroundColor: "#F194FF",
-  },
-  buttonClose: {
-    backgroundColor: "#2196F3",
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center",
-  },
-});
 
 export default PromptModal;

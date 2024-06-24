@@ -14,10 +14,10 @@ export const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 5,
     },
     shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowRadius: 5,
   },
 
   title: {
@@ -27,5 +27,6 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     paddingVertical: 15,
     paddingHorizontal: 15,
+    fontWeight: "bold",
   },
 });

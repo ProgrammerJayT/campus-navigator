@@ -1,190 +1,404 @@
 import {
+  LayoutAnimation,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
+  UIManager,
   View,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import Icons from "@expo/vector-icons/Entypo";
-import ComponentsStateContext from "../../../state-management/context/components";
-import { deleteInterestsPlace } from "../../../services/interests-places";
-import { styles } from "./styles";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import AntDesignIcons from "@expo/vector-icons/AntDesign";
 import { AppColors } from "../../../constants/colors";
-import AuthContext from "../../../state-management/context/auth";
-import LocationStateContext from "../../../state-management/context/location";
-import HeaderSection from "./sections/header";
+import ComponentsStateContext from "../../../state-management/context/components";
+import {
+  deleteUser,
+  getUser,
+  manageAccess,
+  updateUser,
+} from "../../../services/users";
+import HeaderSection from "../sections/header";
+import UserForm from "../../../components/form/users";
+import { styles } from "./styles";
+import Toast from "react-native-root-toast";
+import { failedRequest } from "../../../services/exception";
+import PromptModal from "../../../components/modal/prompt";
+import { fetchVisits } from "../../../services/visits";
 import NavigationStateContext from "../../../state-management/context/navigation";
+import {
+  deleteInterestsPlace,
+  fetchBounds,
+} from "../../../services/interests-places";
 
-const InterestsPlaceScreen = ({ navigation, route }) => {
-  const haversine = require("haversine");
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
-  const { user } = useContext(AuthContext);
-
-  const { location } = useContext(LocationStateContext);
+const InterestsPlacesScreen = ({ navigation, route }) => {
+  const { paramsInterestsPlaceId } = route.params;
 
   const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(
     ComponentsStateContext
   );
 
-  const { interestsPlace } = useContext(NavigationStateContext);
+  const [modal, setModal] = useState({
+    delete: false,
+    status: false,
+    update: false,
+  });
 
-  const handleDeleteUser = async () => {
-    setLottieLoadingComponent((lottieLoadingComponent) => ({
-      ...lottieLoadingComponent,
-      visible: true,
-    }));
+  const [user, setUser] = useState({
+    name: "",
+    surname: "",
+    email: "",
+    type: "",
+    status: "",
+  });
 
-    const response = await deleteInterestsPlace(interestsPlace.id);
+  const [userType, setUserType] = useState();
+  const [userLogins, setUserLogins] = useState(0);
+  const [visitsCount, setVisitsCount] = useState(0);
+  const [boundsCount, setBoundsCount] = useState(0);
 
-    setLottieLoadingComponent((lottieLoadingComponent) => ({
-      ...lottieLoadingComponent,
-      visible: false,
-    }));
+  const { interestsPlace, setInterestsPlace } = useContext(
+    NavigationStateContext
+  );
 
-    if (response.message)
-      return navigation.navigate("Interests Places", {
-        message: response.message,
+  const callGetUser = async () => {
+    const getUserResponse = await getUser(paramsUserId);
+
+    if (getUserResponse.response)
+      return toastMessage(failedRequest(getUserResponse).message, "danger");
+
+    const fetchedUser = getUserResponse.user;
+
+    if (fetchedUser) {
+      setUser((prevUser) => {
+        const updatedUser = { ...prevUser, ...fetchedUser };
+        setUserType(updatedUser.type);
+        return updatedUser;
       });
+    }
 
-    console.log("Delete response", response);
+    setUserLogins(fetchedUser?.logins?.count);
+
+    console.log("Response", fetchedUser);
+  };
+
+  useEffect(() => {
+    toggleLoader(true);
+    callFetchVisits();
+    callFetchBounds();
+    toggleLoader(false);
+    // callGetUser();
+  }, []);
+
+  const handleDeleteInterestsPlace = async () => {
+    toggleLoader(true);
+    const deleteInterestsPlaceResponse = await deleteInterestsPlace(interestsPlace?.id);
+    toggleLoader(false);
+
+    let requestFailed = deleteInterestsPlaceResponse?.response ? true : false;
+
+    if (requestFailed) {
+      toastMessage(failedRequest(deleteInterestsPlaceResponse).message, "danger");
+    } else {
+      setInterestsPlace(() => ({}));
+      return navigation.navigate("Interests Places");
+    }
+  };
+
+  const handleAccountAccess = async (intention) => {
+    toggleLoader(true);
+    const accountAccessResponse = await manageAccess(paramsUserId, intention);
+    toggleLoader(false);
+
+    setForm({ ...form, lock: false });
+
+    let requestFailed = accountAccessResponse?.response ? true : false;
+
+    toastMessage(
+      requestFailed
+        ? failedRequest(accountAccessResponse).message
+        : accountAccessResponse.message,
+      requestFailed ? "danger" : "success"
+    );
+
+    if (!requestFailed) return callGetUser();
+  };
+
+  const handleFormSubmit = async (values) => {
+    //
+    values["type"] = userType;
+    values["id"] = paramsUserId;
+
+    console.log("Values", values);
+
+    toggleLoader(true);
+    const updateUserResponse = await updateUser(values);
+
+    let requestFailed = updateUserResponse?.response ? true : false;
+
+    toastMessage(
+      requestFailed
+        ? failedRequest(updateUserResponse).message
+        : updateUserResponse.message,
+      requestFailed ? "danger" : "success"
+    );
+
+    if (updateUserResponse.message) {
+      await callGetUser();
+    }
+
+    setModal({ ...modal, visible: false });
+
+    toggleLoader(false);
+  };
+
+  const handleDeletePrompt = (intent) => {
+    if (intent === "cancel") {
+      return setModal({ ...modal, delete: false });
+    }
+    console.log("Intent", intent);
+
+    if (modal.delete) return handleDeleteInterestsPlace();
+  };
+
+  const callFetchVisits = async () => {
+    let filters = {
+      interestsPlaceId: paramsInterestsPlaceId,
+    };
+
+    const fetchVisitsResponse = await fetchVisits(filters);
+
+    console.log("Fetch visits response", fetchVisitsResponse);
+
+    let requestFailed = fetchVisitsResponse?.response ? true : false;
+
+    if (requestFailed) {
+      setVisitsCount(0);
+      toastMessage(failedRequest(fetchVisitsResponse).message, "danger");
+    } else {
+      setVisitsCount(fetchVisitsResponse?.visits?.length);
+    }
+  };
+
+  const callFetchBounds = async () => {
+    const fetchBoundsResponse = await fetchBounds(interestsPlace?.id);
+
+    console.log("fetch bounds response", fetchBoundsResponse);
+
+    let requestFailed = fetchBoundsResponse?.response ? true : false;
+
+    if (requestFailed) {
+      setBoundsCount(0);
+      toastMessage(failedRequest(fetchBoundsResponse).message, "danger");
+    } else {
+      setBoundsCount(fetchBoundsResponse?.bounds?.length);
+    }
+  };
+
+  const toggleLoader = (visibility) => {
+    setLottieLoadingComponent((lottieLoadingComponent) => ({
+      ...lottieLoadingComponent,
+      visible: visibility,
+    }));
+  };
+
+  const toastMessage = (message, severity) => {
+    Toast.show(message, {
+      duration: Toast.durations.LONG,
+      backgroundColor: AppColors[severity],
+    });
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <HeaderSection title={interestsPlace?.name} />
-
+    <SafeAreaView style={styles.root}>
       <View
-        style={{
-          flexDirection: "row",
-          marginTop: 10,
-          paddingHorizontal: 20,
-          alignItems: "center",
-        }}
+        style={[
+          styles.container,
+          { opacity: modal.update || modal.delete || modal.status ? 0.1 : 1 },
+        ]}
       >
-        <Icons name="location" size={20} color={"black"} />
-        <Text style={{ marginHorizontal: 10, fontSize: 11 }}>
-          GPS: {`${interestsPlace.latitude}, ${interestsPlace.longitude}`}
+        <HeaderSection title={`${interestsPlace?.name}`} />
+
+        <View style={{ marginBottom: 50 }} />
+
+        <Text style={{ textAlign: "center", marginVertical: 20 }}>
+          Interests Place {interestsPlace?.status}
         </Text>
-      </View>
 
-      <View
-        style={{
-          flexDirection: "row",
-          marginTop: 10,
-          paddingHorizontal: 20,
-          alignItems: "center",
-        }}
-      >
-        <Icons name="calendar" size={20} color={"black"} />
-        <Text style={{ marginHorizontal: 10, fontSize: 10 }}>
-          Date created: {`${interestsPlace.createDate}`}
-        </Text>
-      </View>
-
-      <View
-        style={{
-          flexDirection: "row",
-          marginTop: 10,
-          paddingHorizontal: 20,
-          alignItems: "center",
-        }}
-      >
-        <Icons name="users" size={20} color={"black"} />
-        <Text style={{ marginHorizontal: 10, fontSize: 10 }}>
-          Visits: {`${interestsPlace.createDate}`}
-        </Text>
-      </View>
-
-      <View style={{ flex: 1 }} />
-
-      <View style={styles.buttonsContainer}>
-        {user.type !== "admin" ? (
-          <TouchableOpacity
-            style={{
-              backgroundColor: "black",
-              flex: 1,
-              borderRadius: 10,
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+        <View style={{ flexDirection: "row" }}>
+          <View
+            style={{ flex: 1, paddingHorizontal: 10, alignItems: "center" }}
           >
-            <Text
+            <Text style={{ fontSize: 60 }}>{boundsCount}</Text>
+            <Text>bounds</Text>
+
+            <View style={{ marginBottom: 10 }} />
+
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("Interests Place Bounds");
+              }}
               style={{
-                fontSize: 15,
-                color: "white",
-                textAlign: "center",
-                paddingVertical: 10,
-                marginHorizontal: 5,
+                backgroundColor: AppColors.primary,
+                borderRadius: 5,
+                width: "100%",
+                padding: 5,
               }}
             >
-              Go now
-            </Text>
-            <Icons name="direction" size={20} color={AppColors.background} />
-          </TouchableOpacity>
-        ) : (
-          <>
+              <Text
+                style={{ color: AppColors.background, textAlign: "center" }}
+              >
+                Manage Bounds
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View
+            style={{ flex: 1, paddingHorizontal: 10, alignItems: "center" }}
+          >
+            <Text style={{ fontSize: 60 }}>{visitsCount}</Text>
+            <Text>visits</Text>
+
+            <View style={{ marginBottom: 10 }} />
+
             <TouchableOpacity
-              style={{
-                flex: 1,
-                backgroundColor: "black",
-                marginRight: 10,
-                borderRadius: 10,
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
               onPress={() =>
-                navigation.navigate("Interests Place Bounds", {
-                  interestsPlace: interestsPlace,
+                navigation.navigate("User Visits", {
+                  paramsInterestsPlaceId: paramsInterestsPlaceId,
                 })
               }
-            >
-              <Text
-                style={{
-                  fontSize: 15,
-                  color: "white",
-                  textAlign: "center",
-                  paddingVertical: 10,
-                  marginHorizontal: 5,
-                }}
-              >
-                Manage
-              </Text>
-              <Icons name="cog" size={20} color={AppColors.background} />
-            </TouchableOpacity>
-
-            {/* <TouchableOpacity
               style={{
-                flex: 1,
-                backgroundColor: "black",
-                marginLeft: 10,
-                borderRadius: 10,
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
+                backgroundColor: AppColors.primary,
+                borderRadius: 5,
+                width: "100%",
+                padding: 5,
               }}
-              onPress={() => navigation.navigate("Navigate to Interests Place")}
             >
               <Text
-                style={{
-                  fontSize: 15,
-                  color: "white",
-                  textAlign: "center",
-                  paddingVertical: 10,
-                  marginHorizontal: 5,
-                }}
+                style={{ color: AppColors.background, textAlign: "center" }}
               >
-                Directions
+                Visit History
               </Text>
-              <Icons name="direction" size={20} color={AppColors.background} />
-            </TouchableOpacity> */}
-          </>
-        )}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={{ flex: 1 }} />
+
+        <View style={styles.buttonsContainer}>
+          {/* <View style={{ flex: 1, textAlign: "center" }}>
+            <TouchableOpacity
+              style={{ alignItems: "center" }}
+              onPress={() => {
+                if (user?.status === "active")
+                  return setModal({ ...modal, status: true });
+
+                return handleAccountAccess("active");
+              }}
+            >
+              <MaterialCommunityIcons
+                name={`eye${interestsPlace?.status === "locked" ? "-off" : ""}`}
+                size={20}
+                color={
+                  AppColors[user?.status === "locked" ? "success" : "danger"]
+                }
+              />
+              <Text>{user?.status === "locked" ? "Unhide" : "Hide"}</Text>
+            </TouchableOpacity>
+          </View> */}
+
+          <View style={{ flex: 1, marginBottom: 10, alignItems: "center" }}>
+            <TouchableOpacity
+              onPress={() => setModal({ ...modal, delete: !modal.delete })}
+              style={{
+                alignItems: "center",
+                backgroundColor: AppColors.danger,
+                padding: 10,
+                borderRadius: 1000,
+                shadowOffset: {
+                  width: 0,
+                  height: 0,
+                },
+                shadowOpacity: 1,
+                shadowRadius: 5,
+                width: 70,
+                height: 70,
+              }}
+            >
+              <MaterialCommunityIcons
+                name="delete-empty-outline"
+                size={50}
+                color={AppColors.background}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* <View style={{ flex: 1 }}>
+            <TouchableOpacity
+              style={{ alignItems: "center" }}
+              onPress={() => setModal({ ...modal, update: true })}
+            >
+              <MaterialCommunityIcons
+                name="account-edit"
+                size={20}
+                color={AppColors.success}
+              />
+              <Text>Update</Text>
+            </TouchableOpacity>
+          </View> */}
+        </View>
       </View>
+
+      {modal?.visible && (
+        <View style={styles.formContainer}>
+          <View style={{ alignItems: "center", marginBottom: -12, zIndex: 1 }}>
+            <TouchableOpacity
+              onPress={() => {
+                LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+                setModal({ ...modal, update: false });
+              }}
+              style={{
+                borderRadius: 100,
+                backgroundColor: AppColors.primary,
+              }}
+            >
+              <AntDesignIcons
+                name="closecircleo"
+                size={25}
+                color={AppColors.background}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <HeaderSection title={"Update Account Information"} />
+
+          <View style={{ marginHorizontal: 10, marginTop: 20 }}>
+            <UserForm
+              handleFormSubmit={handleFormSubmit}
+              setUserType={(e) => setUserType(e)}
+              userType={userType}
+              user={user}
+            />
+          </View>
+        </View>
+      )}
+
+      {modal.delete && (
+        <PromptModal
+          message={`Are you sure that you want to delete ${interestsPlace?.name}?`}
+          handleClick={handleDeletePrompt}
+        />
+      )}
     </SafeAreaView>
   );
 };
 
-export default InterestsPlaceScreen;
+export default InterestsPlacesScreen;

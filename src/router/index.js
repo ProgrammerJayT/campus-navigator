@@ -3,7 +3,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "../screens/home";
 import WelcomeScreen from "../screens/welcome";
 import RegisterScreen from "../screens/auth/register";
-import VisitsScreen from "../screens/visits";
 import UsersScreen from "../screens/users/layout";
 import UserScreen from "../screens/users/one";
 import LoginScreen from "../screens/auth/login";
@@ -15,6 +14,8 @@ import ProfileScreen from "../screens/profile";
 import InterestsPlaceBoundsScreen from "../screens/bounds/all/layout";
 import NavigationScreen from "../screens/navigation/layout";
 import NavigationListener from "../screens/navigation/extension";
+import UserLoginsScreen from "../screens/users-logins/one";
+import UserVisitsScreen from "../screens/visits/user";
 
 const Stack = createNativeStackNavigator();
 
@@ -34,19 +35,17 @@ const RouteStack = () => {
           options={{ gestureEnabled: false }}
         />
 
-        <Stack.Screen name="Register" component={RegisterScreen} />
-
         <Stack.Screen name="Login" component={LoginScreen} />
 
         <Stack.Screen name="Users" component={UsersScreen} />
 
         <Stack.Screen name="User" component={UserScreen} />
 
-        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="Users Logins" component={UsersLoginsScreen} />
 
-        <Stack.Screen name="User Logins" component={UsersLoginsScreen} />
+        <Stack.Screen name="User Logins" component={UserLoginsScreen} />
 
-        <Stack.Screen name="Visits" component={VisitsScreen} />
+        <Stack.Screen name="User Visits" component={UserVisitsScreen} />
 
         <Stack.Screen
           name="Interests Places"

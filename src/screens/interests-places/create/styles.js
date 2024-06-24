@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
 
   formContainer: {
     flexGrow: 1,
-    paddingHorizontal: 25,
+    paddingHorizontal: 10,
     paddingBottom: 10,
   },
 

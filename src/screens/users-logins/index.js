@@ -11,6 +11,7 @@ import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEff
 import { fetchUsersLogins } from "../../services/users-logins";
 import { failedRequest } from "../../services/exception";
 import UsersLoginsList from "../../components/flatlist/users-logins";
+import HeaderSection from "./sections/header";
 
 const UsersLoginsScreen = ({ navigation }) => {
   const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(
@@ -28,7 +29,8 @@ const UsersLoginsScreen = ({ navigation }) => {
         }));
         const response = await fetchUsersLogins();
 
-        console.log("Response", failedRequest(response));
+        // console.log("Response", failedRequest(response));
+        console.log("Response", response);
 
         setUsersLogins(response.usersLogins.length ? response.usersLogins : []);
 
@@ -42,20 +44,12 @@ const UsersLoginsScreen = ({ navigation }) => {
     }, [])
   );
 
-  const handleUserClick = (user) => {
-    navigation.navigate("User", { user: user });
-  };
-
   return (
     <SafeAreaView style={styles.container}>
+      <HeaderSection title={"Users Login History"} />
+
       {usersLogins.length ? (
         <View style={{ flex: 1 }}>
-          <View style={styles.headerContainer}>
-            <Text style={[styles.title, { color: "#fff" }]}>Login History</Text>
-            <View style={{ marginHorizontal: 5 }} />
-            <Icons name="users" size={20} color="white" />
-          </View>
-
           <UsersLoginsList usersLogins={usersLogins} />
         </View>
       ) : (

@@ -2,6 +2,13 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import * as Speech from "expo-speech";
 import LocationStateContext from "../location";
 import { calculateBearing } from "../../../utils/bearing";
+import { createVisit, fetchVisits } from "../../../services/visits";
+import AuthContext from "../auth";
+import ComponentsStateContext from "../components";
+import { failedRequest } from "../../../services/exception";
+import Toast from "react-native-root-toast";
+import { AppColors } from "../../../constants/colors";
+import { cardinalPoints } from "../../../utils/cardinal-points";
 
 const NavigationStateContext = createContext();
 
@@ -13,6 +20,7 @@ export const NavigationStateProvider = ({ children }) => {
   const [distance, setDistance] = useState(0);
   const [checkedBounds, setCheckedBounds] = useState([]);
   const [bounds, setBounds] = useState([]);
+  const [visits, setVisits] = useState([]);
   const [bearingToDestination, setBearingToDestination] = useState(0);
 
   let haversine = require("haversine");
@@ -21,8 +29,15 @@ export const NavigationStateProvider = ({ children }) => {
 
   const { location } = useContext(LocationStateContext);
 
+  const { user } = useContext(AuthContext);
+
+  const { lottieLoadingComponent, setLottieLoadingComponent } = useContext(
+    ComponentsStateContext
+  );
+
   const providerChildren = {
     bounds,
+    visits,
     distance,
     isArrived,
     isNavigating,
@@ -31,6 +46,7 @@ export const NavigationStateProvider = ({ children }) => {
     isNextToDestination,
     bearingToDestination,
     setBounds,
+    setVisits,
     setDistance,
     setIsArrived,
     setIsNavigating,
@@ -63,7 +79,6 @@ export const NavigationStateProvider = ({ children }) => {
 
   useEffect(() => {
     if (Object.keys(interestsPlace).length) {
-      console.log("There is a place");
       const bearing = calculateBearing(
         location?.latitude,
         location?.longitude,
@@ -71,6 +86,7 @@ export const NavigationStateProvider = ({ children }) => {
         interestsPlace?.longitude
       );
 
+      callFetchVisits(false);
       setBearingToDestination(Math.floor(bearing));
     }
 
@@ -84,10 +100,13 @@ export const NavigationStateProvider = ({ children }) => {
     //
     if (isNavigating) {
       //
+
       setIsNextToDestination(checkIsNextToDestination());
 
       if (isNextToDestination) {
         setIsNavigating(false);
+        callCreateVisit();
+        callFetchVisits();
         speak("You have reached your destination");
 
         return setCheckedBounds([]);
@@ -106,7 +125,13 @@ export const NavigationStateProvider = ({ children }) => {
             !checkedBounds.includes(element.id)
           ) {
             setCheckedBounds((prev) => [...prev, element.id]);
-            speak(`At this point you should see ${element.surroundings}`);
+            speak(
+              `At this point you should see ${
+                element.surroundings
+              }. Continue walking, your destination is ${cardinalPoints(
+                bearingToDestination
+              )}`
+            );
           } else {
             nextToBound = false;
           }
@@ -127,6 +152,48 @@ export const NavigationStateProvider = ({ children }) => {
       rate: promptVoiceRate,
       voice: promptVoice,
     });
+  };
+
+  const callCreateVisit = async () => {
+    toggleLoader(true);
+    const createVisitResponse = await createVisit(user?.id, interestsPlace?.id);
+    console.log("Create visit response", failedRequest(createVisitResponse));
+  };
+
+  const toggleLoader = (visibility) => {
+    setLottieLoadingComponent((lottieLoadingComponent) => ({
+      ...lottieLoadingComponent,
+      visible: visibility,
+    }));
+  };
+
+  const toastMessage = (message, severity) => {
+    Toast.show(message, {
+      duration: Toast.durations.LONG,
+      backgroundColor: AppColors[severity],
+    });
+  };
+
+  const callFetchVisits = async (reload = true) => {
+    toggleLoader(reload);
+
+    let filters = {
+      userId: user?.id,
+      interestsPlaceId: interestsPlace?.id,
+    };
+
+    const fetchVisitsResponse = await fetchVisits(filters);
+
+    let requestFailed = fetchVisitsResponse?.response ? true : false;
+
+    if (requestFailed) {
+      setVisits([]);
+      toastMessage(failedRequest(fetchVisitsResponse).message, "danger");
+    } else {
+      setVisits(fetchVisitsResponse?.visits);
+    }
+
+    toggleLoader(false);
   };
 
   return (

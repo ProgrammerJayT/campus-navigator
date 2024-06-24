@@ -26,6 +26,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import LocationStateContext from "../../../state-management/context/location";
 import { createInterestsPlace } from "../../../services/interests-places";
 import ComponentsStateContext from "../../../state-management/context/components";
+import HeaderSection from "../../../components/screens/header";
 
 const CreateInterestsPlaceScreen = ({ navigation }) => {
   const { location } = useContext(LocationStateContext);
@@ -88,15 +89,11 @@ const CreateInterestsPlaceScreen = ({ navigation }) => {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <SafeAreaView style={styles.container}>
+          <HeaderSection title={"Create Interests Place"} />
           <ScrollView
             contentContainerStyle={styles.formContainer}
             keyboardShouldPersistTaps="handled"
           >
-            <Text
-              style={{ textAlign: "center", fontSize: 25, marginVertical: 15 }}
-            >
-              Create Interests Place
-            </Text>
             <Image source={CreateInterestsPlaceLogo} style={styles.logo} />
 
             <View style={{ flex: 1 }} />
@@ -157,7 +154,7 @@ const CreateInterestsPlaceScreen = ({ navigation }) => {
                   <View style={{ marginTop: 50 }}>
                     <TouchableOpacityComponent
                       size={"m"}
-                      type={AppColors.secondary}
+                      type={AppColors.primary}
                       text={"Submit"}
                       disabled={!isValid}
                       handleOnPress={handleSubmit}

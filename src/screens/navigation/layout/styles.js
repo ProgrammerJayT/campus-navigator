@@ -46,5 +46,6 @@ export const styles = StyleSheet.create({
   tripInfoText: {
     color: "black",
     textAlign: "center",
+    fontSize:15
   },
 });

@@ -9,15 +9,15 @@ export const LocationStateProvider = ({ children }) => {
     longitude: 0,
   });
 
-  const [loading, setLoading] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
 
   const providerChildren = {
     location,
-    loading,
+    locationLoading,
   };
 
   const handleLocationLoading = (loading) => {
-    setLoading(loading);
+    setLocationLoading(loading);
   };
 
   const handleLocation = (currentLocation) => {

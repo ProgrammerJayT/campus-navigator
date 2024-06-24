@@ -1,11 +1,12 @@
 import { StyleSheet } from "react-native";
-import { AppColors } from "../../../../../constants/colors";
+import { AppColors } from "../../../../constants/colors";
 
 export const styles = StyleSheet.create({
   container: {
     paddingTop: 5,
     backgroundColor: AppColors.primary,
     elevation: 10,
+    marginHorizontal: 10,
     borderRadius: 10,
     flexDirection: "row",
     alignItems: "center",
@@ -13,10 +14,10 @@ export const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 5,
     },
     shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowRadius: 5,
   },
 
   title: {
@@ -26,5 +27,6 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     paddingVertical: 15,
     paddingHorizontal: 15,
+    fontWeight: "bold",
   },
 });

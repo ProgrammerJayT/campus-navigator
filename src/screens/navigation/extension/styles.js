@@ -6,6 +6,7 @@ export const styles = StyleSheet.create({
     backgroundColor: AppColors.success,
     zIndex: 1,
     width: "100%",
+    marginBottom: 10,
   },
 
   button: {
