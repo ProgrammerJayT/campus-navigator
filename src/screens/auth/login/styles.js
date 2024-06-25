@@ -5,6 +5,7 @@ export const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: AppColors.background,
+    padding:0
   },
 
   container: {
@@ -13,14 +14,13 @@ export const styles = StyleSheet.create({
 
   formContainer: {
     flexGrow: 1,
-    padding: 25,
+    padding: 10,
   },
 
   logo: {
     width: "100%",
-    height: 200,
+    height: "100%",
     resizeMode: "contain",
-    marginBottom: 50,
   },
 
   textInput: {
@@ -38,5 +38,12 @@ export const styles = StyleSheet.create({
     color: "red",
     fontSize: 12,
     marginBottom: 0,
+  },
+
+  passwordFormContainer: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
   },
 });

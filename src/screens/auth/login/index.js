@@ -10,21 +10,31 @@ import {
   Keyboard,
   Platform,
   TouchableWithoutFeedback,
+  TouchableOpacity,
 } from "react-native";
-import RegisterLogo from "../../../../assets/images/register.png";
+import LoginImage from "../../../../assets/images/login.png";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import TouchableOpacityComponent from "../../../components/touchable-opacity";
 import { AppColors } from "../../../constants/colors";
 import { styles } from "./styles";
-import SpinnerComponent from "../../../components/spinner";
-import { fetchUser, login } from "../../../services/auth";
+import {
+  createPassword,
+  fetchUser,
+  login,
+  verifyAccount,
+} from "../../../services/auth";
 import { failedRequest } from "../../../services/exception";
 import Toast from "react-native-root-toast";
 import { axiosHeaders } from "../../../services/config/axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ComponentsStateContext from "../../../state-management/context/components";
 import AuthContext from "../../../state-management/context/auth";
+import HeaderSection from "../../../components/screens/header";
+import LoginPasswordFormComponent from "../../../components/form/set-password/login";
+import LoginForm from "../../../components/form/login";
+import AntDesignIcons from "@expo/vector-icons/AntDesign";
+import CreatePasswordFormComponent from "../../../components/form/set-password/create";
 
 const LoginScreen = ({ navigation }) => {
   const { user, setUser } = useContext(AuthContext);
@@ -33,43 +43,133 @@ const LoginScreen = ({ navigation }) => {
     ComponentsStateContext
   );
 
-  const handleFormSubmit = async (values) => {
-    console.log("Form submitted:", values);
+  const [modal, setModal] = useState({
+    password: false,
+    email: "",
+  });
 
-    setLottieLoadingComponent((lottieLoadingComponent) => ({
-      ...lottieLoadingComponent,
-      visible: true,
-    }));
+  const [intention, setIntention] = useState("create");
 
-    const response = await login(values);
+  const handleFormSubmitVerify = async (values) => {
+    toggleLoader(true);
+    const verifyAccountResponse = await verifyAccount(values?.email);
 
-    if (response.token) {
-      const saveToken = async () => {
-        await AsyncStorage.setItem("token", response.token);
-      };
+    let requestFailed = verifyAccountResponse.response ? true : false;
 
-      saveToken();
-      axiosHeaders();
-
-      const loggedUserResponse = await fetchUser();
-      setUser((user) => ({ ...user, ...loggedUserResponse?.user }));
-
-      setLottieLoadingComponent((lottieLoadingComponent) => ({
-        ...lottieLoadingComponent,
-        visible: false,
-      }));
-
-      return navigation.navigate("Home", { old: true });
+    if (requestFailed) {
+      toggleLoader(false);
+      return toastMessage(
+        failedRequest(verifyAccountResponse).message,
+        "danger"
+      );
     }
 
+    let status = verifyAccountResponse.status;
+
+    if (status === "locked") {
+      toggleLoader(false);
+      return toastMessage(
+        "Your account has been locked by the administrator",
+        "danger"
+      );
+    }
+
+    let isPasswordSet = verifyAccountResponse.password === "set" ? true : false;
+
+    setIntention(isPasswordSet ? "login" : "create");
+    setModal({ ...modal, password: true, email: values?.email });
+    return toggleLoader(false);
+  };
+
+  const handleFormSubmitLogin = async (values, { resetForm }) => {
+    toggleLoader(true);
+
+    const loginResponse = await login({
+      email: modal.email,
+      password: values?.password,
+    });
+
+    let requestFailed = loginResponse.response ? true : false;
+
+    if (requestFailed) {
+      toggleLoader(false);
+      return toastMessage(failedRequest(loginResponse).message, "danger");
+    }
+
+    const saveToken = async () => {
+      await AsyncStorage.setItem("token", loginResponse.token);
+    };
+
+    saveToken();
+    axiosHeaders();
+
+    const loggedUserResponse = await fetchUser();
+    setUser((user) => ({ ...user, ...loggedUserResponse?.user }));
+    toggleLoader(false);
+
+    return navigation.navigate("Home", { old: true });
+  };
+
+  const handleFormSubmitCreatePassword = async (values, { resetForm }) => {
+    toggleLoader(true);
+
+    let credentials = {
+      email: modal.email,
+      password: values?.password,
+      verifyPassword: values?.verifyPassword,
+    };
+
+    const createPasswordResponse = await createPassword(credentials);
+
+    let requestFailed = createPasswordResponse.response ? true : false;
+
+    if (requestFailed) {
+      toggleLoader(false);
+      return toastMessage(
+        failedRequest(createPasswordResponse).message,
+        "danger"
+      );
+    }
+
+    toastMessage(createPasswordResponse.message, "success");
+
+    const loginResponse = await login({
+      email: modal.email,
+      password: values?.password,
+    });
+
+    requestFailed = loginResponse.response ? true : false;
+
+    if (requestFailed) {
+      toggleLoader(false);
+      return toastMessage(failedRequest(loginResponse).message, "danger");
+    }
+
+    const saveToken = async () => {
+      await AsyncStorage.setItem("token", loginResponse.token);
+    };
+
+    saveToken();
+    axiosHeaders();
+
+    const loggedUserResponse = await fetchUser();
+    setUser((user) => ({ ...user, ...loggedUserResponse?.user }));
+    toggleLoader(false);
+
+    return navigation.navigate("Home", { old: true });
+  };
+
+  const toggleLoader = (visibility) => {
     setLottieLoadingComponent((lottieLoadingComponent) => ({
       ...lottieLoadingComponent,
-      visible: false,
+      visible: visibility,
     }));
+  };
 
-    Toast.show(failedRequest(response).message, {
+  const toastMessage = (message, severity) => {
+    Toast.show(message, {
       duration: Toast.durations.LONG,
-      backgroundColor: "red",
+      backgroundColor: AppColors[severity],
     });
   };
 
@@ -79,85 +179,57 @@ const LoginScreen = ({ navigation }) => {
       style={styles.root}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <SafeAreaView style={styles.container}>
-          {lottieLoadingComponent && (
-            <SpinnerComponent visible={lottieLoadingComponent} />
-          )}
-
-          <ScrollView
-            contentContainerStyle={styles.formContainer}
-            keyboardShouldPersistTaps="handled"
+        <SafeAreaView style={styles.root}>
+          <View
+            style={[styles.container, { opacity: modal.password ? 0.1 : 1 }]}
           >
-            <Text
-              style={{ textAlign: "center", fontSize: 25, marginBottom: 15 }}
+            <HeaderSection title={"Login"} />
+            <ScrollView
+              contentContainerStyle={styles.formContainer}
+              keyboardShouldPersistTaps="handled"
             >
-              Login
-            </Text>
-            <Image source={RegisterLogo} style={styles.logo} />
+              <View style={{ flex: 1 }}>
+                <Image source={LoginImage} style={styles.logo} />
+              </View>
 
-            <Formik
-              initialValues={{
-                email: "",
-                password: "",
-              }}
-              validationSchema={Yup.object().shape({
-                email: Yup.string()
-                  .email("Invalid email")
-                  .required("Email is required"),
-                password: Yup.string().required("Password is required"),
-              })}
-              onSubmit={handleFormSubmit}
-            >
-              {({
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                values,
-                errors,
-                isValid,
-              }) => (
-                <>
-                  <View style={styles.inputContainer}>
-                    <TextInput
-                      placeholder="Email"
-                      style={styles.textInput}
-                      keyboardType="email-address"
-                      onChangeText={handleChange("email")}
-                      onBlur={handleBlur("email")}
-                      value={values.email}
-                    />
-                    {errors.email && (
-                      <Text style={styles.error}>{errors.email}</Text>
-                    )}
-                  </View>
+              <LoginForm handleFormSubmit={handleFormSubmitVerify} />
+            </ScrollView>
+          </View>
 
-                  <View style={styles.inputContainer}>
-                    <TextInput
-                      placeholder="Password"
-                      style={styles.textInput}
-                      secureTextEntry
-                      onChangeText={handleChange("password")}
-                      onBlur={handleBlur("password")}
-                      value={values.password}
-                    />
-                    {errors.password && (
-                      <Text style={styles.error}>{errors.password}</Text>
-                    )}
-                  </View>
-
-                  <View style={{ marginTop: 50 }}>
-                    <TouchableOpacityComponent
-                      size={"m"}
-                      type={AppColors.primary}
-                      text={"Submit"}
-                      disabled={!isValid}
-                      handleOnPress={handleSubmit}
-                    />
-                  </View>
-                </>
+          {modal.password && (
+            <View style={styles.passwordFormContainer}>
+              <View
+                style={{ alignItems: "center", marginBottom: -12, zIndex: 1 }}
+              >
+                <TouchableOpacity
+                  onPress={() => setModal({ ...modal, password: false })}
+                  style={{
+                    borderRadius: 100,
+                    backgroundColor: AppColors.primary,
+                  }}
+                >
+                  <AntDesignIcons
+                    name="closecircleo"
+                    size={25}
+                    color={AppColors.background}
+                  />
+                </TouchableOpacity>
+              </View>
+              {intention === "login" && (
+                <LoginPasswordFormComponent
+                  email={modal.email}
+                  handleFormSubmit={handleFormSubmitLogin}
+                />
               )}
-            </Formik>
-          </ScrollView>
+              {intention === "create" && (
+                <CreatePasswordFormComponent
+                  email={modal.email}
+                  handleFormSubmit={handleFormSubmitCreatePassword}
+                />
+              )}
+              {/* {intention === "update" && <LoginPasswordFormComponent />} */}
+            </View>
+          )}
         </SafeAreaView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>

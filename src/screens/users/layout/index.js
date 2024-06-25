@@ -76,7 +76,10 @@ const UsersScreen = ({ navigation }) => {
 
     const createUserResponse = await createUser(values);
 
-    if (createUserResponse.message) {
+    let requestFailed = createUserResponse?.response ? true : false;
+
+    if (!requestFailed) {
+      console.log("Failed");
       resetForm();
       fetchUsers();
     }
@@ -87,7 +90,7 @@ const UsersScreen = ({ navigation }) => {
     Toast.show(
       createUserResponse?.response
         ? failedRequest(createUserResponse).message
-        : "User registered successfully",
+        : createUserResponse.message,
       {
         duration: Toast.durations.LONG,
         backgroundColor:
@@ -120,7 +123,9 @@ const UsersScreen = ({ navigation }) => {
               </View>
             ) : (
               <View style={styles.loadingTextContainer}>
-                <Text style={styles.title}>No users found</Text>
+                <Text style={styles.title}>
+                  {lottieLoadingComponent ? "Fetching users" : "No users found"}
+                </Text>
               </View>
             )}
 

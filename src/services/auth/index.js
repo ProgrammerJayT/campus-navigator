@@ -34,6 +34,38 @@ export const login = async (credentials) => {
   }
 };
 
+export const createPassword = async (credentials) => {
+  try {
+    const response = await axios.post(
+      `${process.env.API_URL}/api/v1/create-password`,
+      {
+        email: credentials.email,
+        password: credentials.password,
+        password_confirmation: credentials.verifyPassword,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const verifyAccount = async (email) => {
+  try {
+    const response = await axios.post(
+      `${process.env.API_URL}/api/v1/verify-account`,
+      {
+        email: email,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const verifyToken = async () => {
   await AsyncStorage.getItem("token");
 

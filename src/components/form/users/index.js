@@ -45,8 +45,6 @@ const UserForm = ({
             name: user?.name || "",
             surname: user?.surname || "",
             email: user?.email || "",
-            password: user?.password || "",
-            verifyPassword: user?.password || "",
           }}
           validationSchema={Yup.object().shape({
             name: Yup.string().required("Name is required"),
@@ -54,12 +52,6 @@ const UserForm = ({
             email: Yup.string()
               .email("Invalid email")
               .required("Email is required"),
-            password: Yup.string()
-              .required("Password is required")
-              .min(8, "Password must be at least 8 characters"),
-            verifyPassword: Yup.string()
-              .oneOf([Yup.ref("password"), null], "Passwords must match")
-              .required("Please confirm your password"),
           })}
           onSubmit={handleFormSubmit}
         >
@@ -158,36 +150,6 @@ const UserForm = ({
                   <Text style={styles.inputError}>
                     You cannot change this field
                   </Text>
-                )}
-              </View>
-
-              <View style={styles.inputContainer}>
-                <TextInput
-                  placeholder="Password"
-                  placeholderTextColor={AppColors.dark}
-                  style={styles.textInput}
-                  secureTextEntry
-                  onChangeText={handleChange("password")}
-                  onBlur={handleBlur("password")}
-                  value={values.password}
-                />
-                {errors.password && (
-                  <Text style={styles.inputError}>{errors.password}</Text>
-                )}
-              </View>
-
-              <View style={styles.inputContainer}>
-                <TextInput
-                  placeholder="Re-Password"
-                  placeholderTextColor={AppColors.dark}
-                  style={styles.textInput}
-                  secureTextEntry
-                  onChangeText={handleChange("verifyPassword")}
-                  onBlur={handleBlur("verifyPassword")}
-                  value={values.verifyPassword}
-                />
-                {errors.verifyPassword && (
-                  <Text style={styles.inputError}>{errors.verifyPassword}</Text>
                 )}
               </View>
 

@@ -62,7 +62,7 @@ export const styles = StyleSheet.create({
   },
 
   buttonText: {
-    paddingVertical: 10,
+    paddingVertical: 15,
     textAlign: "center",
   },
 });

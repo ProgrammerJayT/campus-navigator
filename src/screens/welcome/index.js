@@ -28,32 +28,26 @@ const WelcomeScreen = ({ navigation }) => {
       if (token) {
         const tokenValid = await verifyToken();
 
-        if (tokenValid.response) {
-          toggleLoader(false);
-
-          return Toast.show("Session ended. Please login", {
-            duration: Toast.durations.LONG,
-            backgroundColor: AppColors.primary,
-            position: 700,
-          });
-        }
+        if (tokenValid.response) return toggleLoader(false);
 
         const fetchUserResponse = await fetchUser();
-        console.log(
-          "User response",
-          fetchUserResponse.user
-            ? fetchUserResponse
-            : failedRequest(fetchUserResponse)
-        );
-
-        setUser((user) => ({
-          ...user,
-          ...fetchUserResponse?.user,
-        }));
-
         toggleLoader(false);
 
-        return handleNavigation("Home");
+        let requestFailed = fetchUserResponse.response ? true : false;
+
+        if (requestFailed) {
+          return toastMessage(
+            failedRequest(fetchUserResponse).message,
+            "danger"
+          );
+        } else {
+          setUser((user) => ({
+            ...user,
+            ...fetchUserResponse?.user,
+          }));
+
+          return handleNavigation("Home");
+        }
       }
 
       return toggleLoader(false);
@@ -71,6 +65,13 @@ const WelcomeScreen = ({ navigation }) => {
       ...lottieLoadingComponent,
       visible: visibility,
     }));
+  };
+
+  const toastMessage = (message, severity) => {
+    Toast.show(message, {
+      duration: Toast.durations.LONG,
+      backgroundColor: AppColors[severity],
+    });
   };
 
   return (
