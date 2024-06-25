@@ -31,6 +31,7 @@ import {
   deleteInterestsPlace,
   fetchBounds,
 } from "../../../services/interests-places";
+import { useFocusEffect } from "@react-navigation/native";
 
 if (
   Platform.OS === "android" &&
@@ -69,95 +70,33 @@ const InterestsPlacesScreen = ({ navigation, route }) => {
     NavigationStateContext
   );
 
-  const callGetUser = async () => {
-    const getUserResponse = await getUser(paramsUserId);
-
-    if (getUserResponse.response)
-      return toastMessage(failedRequest(getUserResponse).message, "danger");
-
-    const fetchedUser = getUserResponse.user;
-
-    if (fetchedUser) {
-      setUser((prevUser) => {
-        const updatedUser = { ...prevUser, ...fetchedUser };
-        setUserType(updatedUser.type);
-        return updatedUser;
-      });
-    }
-
-    setUserLogins(fetchedUser?.logins?.count);
-
-    console.log("Response", fetchedUser);
-  };
-
-  useEffect(() => {
-    toggleLoader(true);
-    callFetchVisits();
-    callFetchBounds();
-    toggleLoader(false);
-    // callGetUser();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      toggleLoader(true);
+      callFetchVisits();
+      callFetchBounds();
+      toggleLoader(false);
+    }, [])
+  );
 
   const handleDeleteInterestsPlace = async () => {
     toggleLoader(true);
-    const deleteInterestsPlaceResponse = await deleteInterestsPlace(interestsPlace?.id);
+    const deleteInterestsPlaceResponse = await deleteInterestsPlace(
+      interestsPlace?.id
+    );
     toggleLoader(false);
 
     let requestFailed = deleteInterestsPlaceResponse?.response ? true : false;
 
     if (requestFailed) {
-      toastMessage(failedRequest(deleteInterestsPlaceResponse).message, "danger");
+      toastMessage(
+        failedRequest(deleteInterestsPlaceResponse).message,
+        "danger"
+      );
     } else {
       setInterestsPlace(() => ({}));
       return navigation.navigate("Interests Places");
     }
-  };
-
-  const handleAccountAccess = async (intention) => {
-    toggleLoader(true);
-    const accountAccessResponse = await manageAccess(paramsUserId, intention);
-    toggleLoader(false);
-
-    setForm({ ...form, lock: false });
-
-    let requestFailed = accountAccessResponse?.response ? true : false;
-
-    toastMessage(
-      requestFailed
-        ? failedRequest(accountAccessResponse).message
-        : accountAccessResponse.message,
-      requestFailed ? "danger" : "success"
-    );
-
-    if (!requestFailed) return callGetUser();
-  };
-
-  const handleFormSubmit = async (values) => {
-    //
-    values["type"] = userType;
-    values["id"] = paramsUserId;
-
-    console.log("Values", values);
-
-    toggleLoader(true);
-    const updateUserResponse = await updateUser(values);
-
-    let requestFailed = updateUserResponse?.response ? true : false;
-
-    toastMessage(
-      requestFailed
-        ? failedRequest(updateUserResponse).message
-        : updateUserResponse.message,
-      requestFailed ? "danger" : "success"
-    );
-
-    if (updateUserResponse.message) {
-      await callGetUser();
-    }
-
-    setModal({ ...modal, visible: false });
-
-    toggleLoader(false);
   };
 
   const handleDeletePrompt = (intent) => {
@@ -228,10 +167,6 @@ const InterestsPlacesScreen = ({ navigation, route }) => {
         <HeaderSection title={`${interestsPlace?.name}`} />
 
         <View style={{ marginBottom: 50 }} />
-
-        <Text style={{ textAlign: "center", marginVertical: 20 }}>
-          Interests Place {interestsPlace?.status}
-        </Text>
 
         <View style={{ flexDirection: "row" }}>
           <View

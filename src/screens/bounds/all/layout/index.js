@@ -32,48 +32,49 @@ const InterestsPlaceBoundsScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     //
-    const callFetchBounds = async () => {
-      setLottieLoadingComponent((lottieLoadingComponent) => ({
-        ...lottieLoadingComponent,
-        visible: true,
-      }));
-
-      const boundsResponse = await fetchBounds(interestsPlace?.id);
-
-      console.log("Received bounds", boundsResponse);
-
-      if (boundsResponse.response) {
-        setBounds([]);
-
-        Toast.show(
-          boundsResponse.response
-            ? failedRequest(boundsResponse).message
-            : boundsResponse.message,
-          {
-            duration: Toast.durations.LONG,
-            backgroundColor:
-              AppColors[boundsResponse.response ? "danger" : "success"],
-          }
-        );
-      } else {
-        setBounds(boundsResponse.bounds);
-      }
-
-      setLottieLoadingComponent((lottieLoadingComponent) => ({
-        ...lottieLoadingComponent,
-        visible: false,
-      }));
-
-      console.log(
-        "Bounds response",
-        boundsResponse.response
-          ? failedRequest(boundsResponse).message
-          : boundsResponse
-      );
-    };
 
     callFetchBounds();
   }, []);
+
+  const callFetchBounds = async () => {
+    setLottieLoadingComponent((lottieLoadingComponent) => ({
+      ...lottieLoadingComponent,
+      visible: true,
+    }));
+
+    const boundsResponse = await fetchBounds(interestsPlace?.id);
+
+    console.log("Received bounds", boundsResponse);
+
+    if (boundsResponse.response) {
+      setBounds([]);
+
+      Toast.show(
+        boundsResponse.response
+          ? failedRequest(boundsResponse).message
+          : boundsResponse.message,
+        {
+          duration: Toast.durations.LONG,
+          backgroundColor:
+            AppColors[boundsResponse.response ? "danger" : "success"],
+        }
+      );
+    } else {
+      setBounds(boundsResponse.bounds);
+    }
+
+    setLottieLoadingComponent((lottieLoadingComponent) => ({
+      ...lottieLoadingComponent,
+      visible: false,
+    }));
+
+    console.log(
+      "Bounds response",
+      boundsResponse.response
+        ? failedRequest(boundsResponse).message
+        : boundsResponse
+    );
+  };
 
   const handleSubmit = async (values, { resetForm }) => {
     console.log("vakues", values);
@@ -90,6 +91,7 @@ const InterestsPlaceBoundsScreen = ({ navigation, route }) => {
 
     if (boundResponse?.bound) {
       resetForm();
+      callFetchBounds();
     }
 
     console.log("Response", failedRequest(boundResponse).message);
